@@ -1,0 +1,7 @@
+R = 4.7ohm
+
+Only transf: 0.051V AC
+fara nrf: 0.036V AC, 0.033V AC
+
+U = 0.042V AC
+I = 8.93mA
