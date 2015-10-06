@@ -96,8 +96,8 @@ static u16 rf_halfbittime = 0;
 static u16 rf_low_time = 0;
 static u16 rf_high_time = 0;
 static u16 rf_offset = 0;
-static volatile u16 rcv_buff[50];
-static volatile idx = 0;
+volatile u16 rcv_buff[75];
+volatile u8 idx = 0;
 volatile RFmsg_t RcvRFmsg;
 static u8 RFrcvChksum;
 u8 RFbytesReady = FALSE;
@@ -176,11 +176,11 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     FLAG_CC_Error = TRUE;
   }
   
-  /*if(idx < 50) {
-    if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise;
-    else rcv_buff[idx++] = cap_fall;
+  if(idx < 75)
+  {
+    if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise-cap_fall;
+    else if(FLAG_fall_edge) rcv_buff[idx++] = cap_fall;
   }
-  else idx = 0;*/
   RFrcvTimeoutcnt = 0;
   switch(RF_rcvState)
   {
@@ -195,7 +195,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
           RF_bits = 0;
           RF_bytes = 0;
           RF_data = 0;
-          idx = 0;
+          //idx = 0;
           RF_rcvState = RF_RCVSTATE_RECBITS;
         }
       }
@@ -204,70 +204,15 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     case RF_RCVSTATE_RECBITS:
     {
       // ----- pulse duration logging -----
-      if(idx < 50)
+      /*if(idx < 75)
       {
-        if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise;
+        if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise-cap_fall;
         else rcv_buff[idx++] = cap_fall;
-      }
+      }*/
       // ----- END pulse duration logging -----
       
       // now we had a start pulse, record 8 bits
       if(FLAG_rise_edge)
-      {
-        rf_low_time = cap_rise-cap_fall;
-        if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
-        {
-          //found "0" bit
-          RF_bits++;
-          if(RF_bits < 8) RF_data <<= 1;
-          if(RF_bits == 8)
-          {
-            u8 i;
-            RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
-            RF_bits = 0;
-            RF_data = 0;
-            if(RF_bytes == 2)
-            {
-              if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
-              {
-                /* not the expected package */
-                flag_RF_StartRec = FALSE;
-                RF_rcvState = RF_RCVSTATE_WAITSTART;
-              }
-              else
-              {
-                flag_RF_StartRec = TRUE;
-                idx_temp2 = 0;
-              }
-            }
-            if(RF_bytes == RFSEND_DATALEN) 
-            {
-              RFrcvChksum = 0;
-              for(i=0;i<RFSEND_DATALEN-1;i++)
-              {
-                RFrcvChksum += RcvRFmsg.RFmsgarray[i];
-              }
-              RFrcvChksum = (u8)(~RFrcvChksum);
-              if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
-              {
-                RFbytesReady = TRUE;  // set new RF data available flag
-              }
-              flag_RF_StartRec = FALSE;
-              RF_rcvState = RF_RCVSTATE_WAITSTART;
-            }
-          }
-          rf_offset = 0;
-        }
-        else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
-        {
-          rf_offset = rf_low_time;
-        }
-        else
-        {
-          RF_rcvState = RF_RCVSTATE_WAITSTART;
-        }
-      }
-      else if(FLAG_fall_edge)
       {
         rf_high_time = cap_fall;
         if(rf_high_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_high_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
@@ -319,6 +264,61 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
           rf_offset = rf_high_time;
         }
         else 
+        {
+          RF_rcvState = RF_RCVSTATE_WAITSTART;
+        }
+      }
+      else if(FLAG_fall_edge)
+      {
+        rf_low_time = cap_rise-cap_fall;
+        if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+        {
+          //found "0" bit
+          RF_bits++;
+          if(RF_bits < 8) RF_data <<= 1;
+          if(RF_bits == 8)
+          {
+            u8 i;
+            RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
+            RF_bits = 0;
+            RF_data = 0;
+            if(RF_bytes == 2)
+            {
+              if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
+              {
+                /* not the expected package */
+                flag_RF_StartRec = FALSE;
+                RF_rcvState = RF_RCVSTATE_WAITSTART;
+              }
+              else
+              {
+                flag_RF_StartRec = TRUE;
+                idx_temp2 = 0;
+              }
+            }
+            if(RF_bytes == RFSEND_DATALEN) 
+            {
+              RFrcvChksum = 0;
+              for(i=0;i<RFSEND_DATALEN-1;i++)
+              {
+                RFrcvChksum += RcvRFmsg.RFmsgarray[i];
+              }
+              RFrcvChksum = (u8)(~RFrcvChksum);
+              if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
+              {
+                RFbytesReady = TRUE;  // set new RF data available flag
+              }
+              flag_RF_StartRec = FALSE;
+              RF_rcvState = RF_RCVSTATE_WAITSTART;
+            }
+          }
+          rf_offset = 0;
+        }
+        else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
+        {
+          rf_offset = rf_low_time;
+        }
+        else
         {
           RF_rcvState = RF_RCVSTATE_WAITSTART;
         }
@@ -551,7 +551,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
     if(RFrcvTimeoutcnt < 255) RFrcvTimeoutcnt++;
     if(RFrcvTimeoutcnt >= RF_RCVTIMEOUT)
     {
-      RF_rcvState = RF_RCVSTATE_WAITSTART;
+      //RF_rcvState = RF_RCVSTATE_WAITSTART;
     }
     /* ========== DEBOUNCE INPUTS ========== 1MS */
     /* Debounce BTN1 */

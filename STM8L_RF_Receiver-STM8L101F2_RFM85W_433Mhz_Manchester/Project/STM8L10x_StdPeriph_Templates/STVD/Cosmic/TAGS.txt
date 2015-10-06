@@ -432,7 +432,7 @@ FLAG_250ms	..\..\stm8l10x_it.c	37;"	variable
 FLAG_500ms	..\..\stm8l10x_it.c	40;"	variable
 FLAG_BTN1_lock	..\..\main.c	90;"	variable	file:
 FLAG_CC_Error	..\..\stm8l10x_it.c	93;"	variable	file:
-FLAG_UART_cmd_rcv	..\..\stm8l10x_it.c	114;"	variable
+FLAG_UART_cmd_rcv	..\..\stm8l10x_it.c	116;"	variable
 FLAG_check_nrf_reg	..\..\main.c	92;"	variable	file:
 FLAG_fall_edge	..\..\stm8l10x_it.c	92;"	variable	file:
 FLAG_reset_LEDblink_error	..\..\main.c	91;"	variable	file:
@@ -754,7 +754,7 @@ INTERRUPT_HANDLER	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1349;"	macro
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1354;"	macro
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1363;"	macro
-INTERRUPT_HANDLER_TRAP	..\..\stm8l10x_it.c	335;"	function
+INTERRUPT_HANDLER_TRAP	..\..\stm8l10x_it.c	339;"	function
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	90;"	macro
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	92;"	macro
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	94;"	macro
@@ -1096,22 +1096,22 @@ RFSEND_DATALEN	..\..\stm8l10x_it.h	55;"	macro
 RFSYNCVAL	..\..\stm8l10x_it.c	88;"	macro	file:
 RF_Cmd_TypeDef	..\..\main.c	83;"	typedef	typeref:enum:__anon4	file:
 RF_EDGES_JITTER	..\..\stm8l10x_it.c	86;"	macro	file:
-RF_RCVSTATE_REC8BITS	..\..\stm8l10x_it.c	111;"	enumerator	enum:__anon5	file:
-RF_RCVSTATE_WAITSTART	..\..\stm8l10x_it.c	110;"	enumerator	enum:__anon5	file:
+RF_RCVSTATE_RECBITS	..\..\stm8l10x_it.c	113;"	enumerator	enum:__anon5	file:
+RF_RCVSTATE_WAITSTART	..\..\stm8l10x_it.c	112;"	enumerator	enum:__anon5	file:
 RF_RCVTIMEOUT	..\..\stm8l10x_it.c	87;"	macro	file:
-RF_bits	..\..\stm8l10x_it.c	103;"	variable	file:
-RF_bytes	..\..\stm8l10x_it.c	104;"	variable	file:
-RF_data	..\..\stm8l10x_it.c	105;"	variable	file:
-RF_rcvState	..\..\stm8l10x_it.c	113;"	variable	file:
-RF_rcvState_t	..\..\stm8l10x_it.c	112;"	typedef	typeref:enum:__anon5	file:
-RFbytesReady	..\..\stm8l10x_it.c	101;"	variable
+RF_bits	..\..\stm8l10x_it.c	105;"	variable	file:
+RF_bytes	..\..\stm8l10x_it.c	106;"	variable	file:
+RF_data	..\..\stm8l10x_it.c	107;"	variable	file:
+RF_rcvState	..\..\stm8l10x_it.c	115;"	variable	file:
+RF_rcvState_t	..\..\stm8l10x_it.c	114;"	typedef	typeref:enum:__anon5	file:
+RFbytesReady	..\..\stm8l10x_it.c	103;"	variable
 RFcmd	..\..\stm8l10x_it.h	62;"	member	struct:__anon6::__anon7
 RFmsgCHKSUM	..\..\stm8l10x_it.h	63;"	member	struct:__anon6::__anon7
 RFmsg_t	..\..\stm8l10x_it.h	66;"	typedef	typeref:union:__anon6
 RFmsgarray	..\..\stm8l10x_it.h	65;"	member	union:__anon6
 RFmsgmember	..\..\stm8l10x_it.h	64;"	member	union:__anon6	typeref:struct:__anon6::__anon7
-RFrcvChksum	..\..\stm8l10x_it.c	100;"	variable	file:
-RFrcvTimeoutcnt	..\..\stm8l10x_it.c	102;"	variable	file:
+RFrcvChksum	..\..\stm8l10x_it.c	102;"	variable	file:
+RFrcvTimeoutcnt	..\..\stm8l10x_it.c	104;"	variable	file:
 RFsyncValue	..\..\stm8l10x_it.h	60;"	member	struct:__anon6::__anon7
 RLR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	716;"	member	struct:IWDG_struct
 RST	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1283;"	macro
@@ -1136,7 +1136,7 @@ RST_SR_RESET_VALUE	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.
 RST_SR_SWIMF	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	825;"	macro
 RST_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	806;"	typedef	typeref:struct:RST_struct
 RST_struct	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	800;"	struct
-RcvRFmsg	..\..\stm8l10x_it.c	99;"	variable
+RcvRFmsg	..\..\stm8l10x_it.c	101;"	variable
 Receivers	..\..\main.c	87;"	variable	file:
 S16_MAX	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	164;"	macro
 S16_MIN	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	165;"	macro
@@ -2256,7 +2256,7 @@ error_cnt	..\..\errors.c	4;"	variable	file:
 error_cnt_thr	..\..\errors.c	5;"	variable	file:
 error_nrf24_reg_cnt	..\..\main.c	93;"	variable	file:
 error_state	..\..\errors.c	6;"	variable	file:
-flag_RF_StartRec	..\..\stm8l10x_it.c	108;"	variable	file:
+flag_RF_StartRec	..\..\stm8l10x_it.c	110;"	variable	file:
 flag_blink_greenLED	..\..\stm8l10x_it.c	80;"	variable
 flag_blink_on_off	..\..\stm8l10x_it.c	78;"	variable
 flag_blink_redLED	..\..\stm8l10x_it.c	79;"	variable
@@ -2265,8 +2265,8 @@ flash_erase_timing_test	..\..\main.c	101;"	variable	file:
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1321;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1331;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1342;"	macro
-idx	..\..\stm8l10x_it.c	98;"	variable	file:
-idx_temp2	..\..\stm8l10x_it.c	107;"	variable	file:
+idx	..\..\stm8l10x_it.c	100;"	variable	file:
+idx_temp2	..\..\stm8l10x_it.c	109;"	variable	file:
 init_delay	..\..\main.c	100;"	variable	file:
 int16_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	132;"	typedef
 int32_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	133;"	typedef
@@ -2282,10 +2282,12 @@ nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1317;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1327;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1338;"	macro
 program_status	..\..\main.c	95;"	variable	file:
-rcv_buff	..\..\stm8l10x_it.c	97;"	variable	file:
+rcv_buff	..\..\stm8l10x_it.c	99;"	variable	file:
 rf_bittime	..\..\stm8l10x_it.c	94;"	variable	file:
 rf_halfbittime	..\..\stm8l10x_it.c	95;"	variable	file:
-rf_offset	..\..\stm8l10x_it.c	96;"	variable	file:
+rf_high_time	..\..\stm8l10x_it.c	97;"	variable	file:
+rf_low_time	..\..\stm8l10x_it.c	96;"	variable	file:
+rf_offset	..\..\stm8l10x_it.c	98;"	variable	file:
 rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1315;"	macro
 rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1325;"	macro
 rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1336;"	macro
@@ -2299,7 +2301,7 @@ state	..\..\main.c	94;"	variable	file:
 tBtoDW	..\..\main.c	70;"	typedef	typeref:union:__anon2	file:
 tReceivers	..\..\main.c	59;"	typedef	typeref:struct:__anon1	file:
 task_1000ms_cnt	..\..\main.c	99;"	variable	file:
-temp2	..\..\stm8l10x_it.c	106;"	variable	file:
+temp2	..\..\stm8l10x_it.c	108;"	variable	file:
 trap	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1318;"	macro
 trap	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1328;"	macro
 trap	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1339;"	macro
