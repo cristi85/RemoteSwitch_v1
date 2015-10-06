@@ -93,6 +93,8 @@ static u8  FLAG_fall_edge = FALSE;
 static u8  FLAG_CC_Error = FALSE;
 static u16 rf_bittime = 0;
 static u16 rf_halfbittime = 0;
+static u16 rf_low_time = 0;
+static u16 rf_high_time = 0;
 static u16 rf_offset = 0;
 static volatile u16 rcv_buff[50];
 static volatile idx = 0;
@@ -107,8 +109,8 @@ static volatile u16 temp2[RFRECORDLEN];
 static u8 idx_temp2 = 0;
 static _Bool flag_RF_StartRec = TRUE;
 typedef enum {
-          RF_RCVSTATE_WAITSTART  = 0,
-          RF_RCVSTATE_REC8BITS   = 1
+          RF_RCVSTATE_WAITSTART = 0,
+          RF_RCVSTATE_RECBITS   = 1
 } RF_rcvState_t;
 static RF_rcvState_t RF_rcvState = RF_RCVSTATE_WAITSTART;
 _Bool FLAG_UART_cmd_rcv = FALSE;
@@ -153,32 +155,32 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_TRG_BRK_IRQHandler, 21)
   */
 INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
 {
-  /* - cap_rise - timer value on rising edge  (contains signal high time)
-     - cap_fall - timer value on falling edge (contains signal period time)
+  /* - cap_rise - timer value on rising edge  (contains signal period time)
+     - cap_fall - timer value on falling edge (contains signal high time)
      - timer is reset on rising edge     */
-  if(TIM3_GetITStatus(TIM3_IT_CC2) == SET)
-  {
-    cap_rise = TIM3_GetCapture2();
+  // _|-|_|-|_|--|__|--|__|--|_
+  //  | P | P |  S |1 |0 |1 |
+  // _|-|_|-|_|--|_|-|__|--|_
+  //  | P | P |  S |0 |1 |0 |
+  if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
+    cap_rise = TIM3_GetCapture1();
     FLAG_rise_edge = TRUE;
   }
   else FLAG_rise_edge = FALSE;
-  if(TIM3_GetITStatus(TIM3_IT_CC1) == SET)
-  {
-    cap_fall = TIM3_GetCapture1();
+  if(TIM3_GetITStatus(TIM3_IT_CC2) == SET) {
+    cap_fall = TIM3_GetCapture2();
     FLAG_fall_edge = TRUE;
   }
   else FLAG_fall_edge = FALSE;
-  if(FLAG_rise_edge && FLAG_fall_edge)
-  {
+  if(FLAG_rise_edge && FLAG_fall_edge) {
     FLAG_CC_Error = TRUE;
   }
   
-  if(idx < 50)
-  {
+  /*if(idx < 50) {
     if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise;
     else rcv_buff[idx++] = cap_fall;
   }
-  else idx = 0;
+  else idx = 0;*/
   RFrcvTimeoutcnt = 0;
   switch(RF_rcvState)
   {
@@ -186,8 +188,6 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     {
       if(FLAG_fall_edge)
       {
-        rf_halfbittime = cap_rise;
-        rf_bittime = cap_fall;
         if(cap_fall >= 500 - RF_EDGES_JITTER && cap_fall <= 500 + RF_EDGES_JITTER)
         {
           rf_bittime = cap_fall;
@@ -196,22 +196,26 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
           RF_bytes = 0;
           RF_data = 0;
           idx = 0;
-          RF_rcvState = RF_RCVSTATE_REC8BITS;
+          RF_rcvState = RF_RCVSTATE_RECBITS;
         }
       }
       break;
     }
-    case RF_RCVSTATE_REC8BITS:
+    case RF_RCVSTATE_RECBITS:
     {
-      /*if(idx < 50)
+      // ----- pulse duration logging -----
+      if(idx < 50)
       {
         if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise;
         else rcv_buff[idx++] = cap_fall;
-      }*/
+      }
+      // ----- END pulse duration logging -----
+      
       // now we had a start pulse, record 8 bits
       if(FLAG_rise_edge)
       {
-        if(cap_rise+rf_offset <= rf_bittime+RF_EDGES_JITTER && cap_rise+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+        rf_low_time = cap_rise-cap_fall;
+        if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
         {
           //found "0" bit
           RF_bits++;
@@ -252,11 +256,11 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               RF_rcvState = RF_RCVSTATE_WAITSTART;
             }
           }
-          if(rf_offset > 0) rf_offset = 0;
+          rf_offset = 0;
         }
-        else if(cap_rise <= rf_halfbittime+RF_EDGES_JITTER && cap_rise >= rf_halfbittime-RF_EDGES_JITTER)
+        else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
         {
-          rf_offset = cap_rise;
+          rf_offset = rf_low_time;
         }
         else
         {
@@ -265,7 +269,8 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
       }
       else if(FLAG_fall_edge)
       {
-        if(cap_fall-cap_rise+rf_offset <= rf_bittime+RF_EDGES_JITTER && cap_fall-cap_rise+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+        rf_high_time = cap_fall;
+        if(rf_high_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_high_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
         {
           //found "1" bit
           RF_data |= 0x01;
@@ -307,11 +312,11 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               RF_rcvState = RF_RCVSTATE_WAITSTART;
             }
           }
-          if(rf_offset > 0) rf_offset = 0;
+          rf_offset = 0;
         }
-        else if(cap_fall-cap_rise <= rf_halfbittime+RF_EDGES_JITTER && cap_fall-cap_rise >= rf_halfbittime-RF_EDGES_JITTER)
+        else if(rf_high_time <= rf_halfbittime+RF_EDGES_JITTER && rf_high_time >= rf_halfbittime-RF_EDGES_JITTER)
         {
-          rf_offset = cap_fall-cap_rise;
+          rf_offset = rf_high_time;
         }
         else 
         {
@@ -322,7 +327,6 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     }
     default: break;
   }
-  
   TIM3_ClearITPendingBit(TIM3_IT_CC1);
   TIM3_ClearITPendingBit(TIM3_IT_CC2);
 }
@@ -465,7 +469,6 @@ INTERRUPT_HANDLER(EXTI5_IRQHandler, 13)
   * @retval None
   */
 INTERRUPT_HANDLER(EXTI6_IRQHandler, 14)
-
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
