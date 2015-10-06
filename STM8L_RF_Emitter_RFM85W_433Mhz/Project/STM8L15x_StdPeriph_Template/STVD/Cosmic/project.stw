@@ -1,0 +1,12 @@
+;	STMicroelectronics Workspace file
+
+[Version]
+Keyword=ST7Workspace-V0.7
+
+[Project0]
+Filename=stm8l05xx3.stp
+Dependencies=
+[Options]
+ActiveProject=STM8L05X_LD_VL(STM8L05xx3)
+ActiveConfig=Debug
+AddSortedElements=0
