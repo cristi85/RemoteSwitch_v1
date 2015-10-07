@@ -64,883 +64,931 @@
   80  0016 00            	dc.b	0
   81  0017               L51_FLAG_CC_Error:
   82  0017 00            	dc.b	0
-  83  0018               L71_rf_bittime:
-  84  0018 0000          	dc.w	0
-  85  001a               L12_rf_halfbittime:
-  86  001a 0000          	dc.w	0
-  87  001c               L32_rf_low_time:
-  88  001c 0000          	dc.w	0
-  89  001e               L52_rf_high_time:
-  90  001e 0000          	dc.w	0
-  91  0020               L72_rf_offset:
-  92  0020 0000          	dc.w	0
-  93  0022               _idx:
-  94  0022 00            	dc.b	0
-  95  0023               _RFbytesReady:
+  83  0018               L71_FLAG_start_found:
+  84  0018 00            	dc.b	0
+  85  0019               L12_rf_bittime:
+  86  0019 0000          	dc.w	0
+  87  001b               L32_rf_halfbittime:
+  88  001b 0000          	dc.w	0
+  89  001d               L52_rf_low_time:
+  90  001d 0000          	dc.w	0
+  91  001f               L72_rf_high_time:
+  92  001f 0000          	dc.w	0
+  93  0021               L13_rf_offset:
+  94  0021 0000          	dc.w	0
+  95  0023               _idx:
   96  0023 00            	dc.b	0
-  97  0024               L33_RFrcvTimeoutcnt:
+  97  0024               _RFbytesReady:
   98  0024 00            	dc.b	0
-  99  0025               L53_RF_bits:
+  99  0025               L53_RFrcvTimeoutcnt:
  100  0025 00            	dc.b	0
- 101  0026               L73_RF_bytes:
+ 101  0026               L73_RF_bits:
  102  0026 00            	dc.b	0
- 103  0027               L14_RF_data:
+ 103  0027               L14_RF_bytes:
  104  0027 00            	dc.b	0
- 105  0028               L54_idx_temp2:
+ 105  0028               L34_RF_data:
  106  0028 00            	dc.b	0
- 107                     	switch	.bit
- 108  0008               L74_flag_RF_StartRec:
- 109  0008 01            	dc.b	1
- 110                     	bsct
- 111  0029               L15_RF_rcvState:
- 112  0029 00            	dc.b	0
- 113                     	switch	.bit
- 114  0009               _FLAG_UART_cmd_rcv:
- 115  0009 00            	dc.b	0
- 145                     ; 132 INTERRUPT_HANDLER(NonHandledInterrupt,0)
- 145                     ; 133 {
- 146                     .text:	section	.text,new
- 147  0000               f_NonHandledInterrupt:
- 151                     ; 137 }
- 154  0000 80            	iret	
- 177                     ; 145 INTERRUPT_HANDLER(TIM3_UPD_OVF_TRG_BRK_IRQHandler, 21)
- 177                     ; 146 {
- 178                     .text:	section	.text,new
- 179  0000               f_TIM3_UPD_OVF_TRG_BRK_IRQHandler:
- 183                     ; 150 }
- 186  0000 80            	iret	
- 255                     ; 156 INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
- 255                     ; 157 {
- 256                     .text:	section	.text,new
- 257  0000               f_TIM3_CAP_IRQHandler:
- 259  0000 8a            	push	cc
- 260  0001 84            	pop	a
- 261  0002 a4bf          	and	a,#191
- 262  0004 88            	push	a
- 263  0005 86            	pop	cc
- 264       00000001      OFST:	set	1
- 265  0006 3b0002        	push	c_x+2
- 266  0009 be00          	ldw	x,c_x
- 267  000b 89            	pushw	x
- 268  000c 3b0002        	push	c_y+2
- 269  000f be00          	ldw	x,c_y
- 270  0011 89            	pushw	x
- 271  0012 88            	push	a
- 274                     ; 165   if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
- 276  0013 a602          	ld	a,#2
- 277  0015 cd0000        	call	_TIM3_GetITStatus
- 279  0018 4a            	dec	a
- 280  0019 260b          	jrne	L131
- 281                     ; 166     cap_rise = TIM3_GetCapture1();
- 283  001b cd0000        	call	_TIM3_GetCapture1
- 285  001e bf99          	ldw	L5_cap_rise,x
- 286                     ; 167     FLAG_rise_edge = TRUE;
- 288  0020 35010015      	mov	L11_FLAG_rise_edge,#1
- 290  0024 2002          	jra	L331
- 291  0026               L131:
- 292                     ; 169   else FLAG_rise_edge = FALSE;
- 294  0026 3f15          	clr	L11_FLAG_rise_edge
- 295  0028               L331:
- 296                     ; 170   if(TIM3_GetITStatus(TIM3_IT_CC2) == SET) {
- 298  0028 a604          	ld	a,#4
- 299  002a cd0000        	call	_TIM3_GetITStatus
- 301  002d 4a            	dec	a
- 302  002e 260b          	jrne	L531
- 303                     ; 171     cap_fall = TIM3_GetCapture2();
- 305  0030 cd0000        	call	_TIM3_GetCapture2
- 307  0033 bf97          	ldw	L7_cap_fall,x
- 308                     ; 172     FLAG_fall_edge = TRUE;
- 310  0035 35010016      	mov	L31_FLAG_fall_edge,#1
- 312  0039 2002          	jra	L731
- 313  003b               L531:
- 314                     ; 174   else FLAG_fall_edge = FALSE;
- 316  003b 3f16          	clr	L31_FLAG_fall_edge
- 317  003d               L731:
- 318                     ; 175   if(FLAG_rise_edge && FLAG_fall_edge) {
- 320  003d b615          	ld	a,L11_FLAG_rise_edge
- 321  003f 2708          	jreq	L141
- 323  0041 b616          	ld	a,L31_FLAG_fall_edge
- 324  0043 2704          	jreq	L141
- 325                     ; 176     FLAG_CC_Error = TRUE;
- 327  0045 35010017      	mov	L51_FLAG_CC_Error,#1
- 328  0049               L141:
- 329                     ; 179   if(idx < 75)
- 331  0049 b622          	ld	a,_idx
- 332  004b a14b          	cp	a,#75
- 333  004d 2429          	jruge	L341
- 334                     ; 181     if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise-cap_fall;
- 336  004f b615          	ld	a,L11_FLAG_rise_edge
- 337  0051 2715          	jreq	L541
- 340  0053 be99          	ldw	x,L5_cap_rise
- 341  0055 72b00097      	subw	x,L7_cap_fall
- 342  0059 b622          	ld	a,_idx
- 343  005b 3c22          	inc	_idx
- 344  005d 905f          	clrw	y
- 345  005f 9097          	ld	yl,a
- 346  0061 9058          	sllw	y
- 347  0063 90ef01        	ldw	(_rcv_buff,y),x
- 349  0066 2010          	jra	L341
- 350  0068               L541:
- 351                     ; 182     else if(FLAG_fall_edge) rcv_buff[idx++] = cap_fall;
- 353  0068 b616          	ld	a,L31_FLAG_fall_edge
- 354  006a 270c          	jreq	L341
- 357  006c b622          	ld	a,_idx
- 358  006e 3c22          	inc	_idx
- 359  0070 5f            	clrw	x
- 360  0071 97            	ld	xl,a
- 361  0072 58            	sllw	x
- 362  0073 90be97        	ldw	y,L7_cap_fall
- 363  0076 ef01          	ldw	(_rcv_buff,x),y
- 364  0078               L341:
- 365                     ; 184   RFrcvTimeoutcnt = 0;
- 367  0078 3f24          	clr	L33_RFrcvTimeoutcnt
- 368                     ; 185   switch(RF_rcvState)
- 370  007a b629          	ld	a,L15_RF_rcvState
- 372                     ; 328     default: break;
- 373  007c 2707          	jreq	L101
- 374  007e 4a            	dec	a
- 375  007f 2727          	jreq	L301
- 376  0081 acb901b9      	jra	L551
- 377  0085               L101:
- 378                     ; 189       if(FLAG_fall_edge)
- 380  0085 3d16          	tnz	L31_FLAG_fall_edge
- 381  0087 27f8          	jreq	L551
- 382                     ; 191         if(cap_fall >= 500 - RF_EDGES_JITTER && cap_fall <= 500 + RF_EDGES_JITTER)
- 384  0089 be97          	ldw	x,L7_cap_fall
- 385  008b a301c2        	cpw	x,#450
- 386  008e 25f1          	jrult	L551
- 388  0090 a30227        	cpw	x,#551
- 389  0093 24ec          	jruge	L551
- 390                     ; 193           rf_bittime = cap_fall;
- 392  0095 bf18          	ldw	L71_rf_bittime,x
- 393                     ; 194           rf_halfbittime = rf_bittime >> 1;
- 395  0097 54            	srlw	x
- 396  0098 bf1a          	ldw	L12_rf_halfbittime,x
- 397                     ; 195           RF_bits = 0;
- 399  009a b725          	ld	L53_RF_bits,a
- 400                     ; 196           RF_bytes = 0;
- 402  009c b726          	ld	L73_RF_bytes,a
- 403                     ; 197           RF_data = 0;
- 405  009e b727          	ld	L14_RF_data,a
- 406                     ; 199           RF_rcvState = RF_RCVSTATE_RECBITS;
- 408  00a0 35010029      	mov	L15_RF_rcvState,#1
- 409  00a4 acb901b9      	jra	L551
- 410  00a8               L301:
- 411                     ; 215       if(FLAG_rise_edge)
- 413  00a8 b615          	ld	a,L11_FLAG_rise_edge
- 414  00aa 2604ac2f012f  	jreq	L361
- 415                     ; 217         rf_high_time = cap_fall;
- 417  00b0 be97          	ldw	x,L7_cap_fall
- 418  00b2 bf1e          	ldw	L52_rf_high_time,x
- 419                     ; 218         if(rf_high_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_high_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
- 421  00b4 8de401e4      	callf	LC007
- 422  00b8 225b          	jrugt	L561
- 424  00ba 8df501f5      	callf	LC008
- 425  00be 2555          	jrult	L561
- 426                     ; 221           RF_data |= 0x01;
- 428  00c0 72100027      	bset	L14_RF_data,#0
- 429                     ; 222           RF_bits++;
- 431  00c4 3c25          	inc	L53_RF_bits
- 432                     ; 223           if(RF_bits < 8) RF_data <<= 1;
- 434  00c6 b625          	ld	a,L53_RF_bits
- 435  00c8 a108          	cp	a,#8
- 436  00ca 2402          	jruge	L761
- 439  00cc 3827          	sll	L14_RF_data
- 440  00ce               L761:
- 441                     ; 224           if(RF_bits == 8)
- 443  00ce a108          	cp	a,#8
- 444  00d0 2704ac9c019c  	jrne	L132
- 445                     ; 227             RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
- 447  00d6 8dd101d1      	callf	LC006
- 448  00da 2612          	jrne	L371
- 449                     ; 232               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
- 451  00dc be9c          	ldw	x,_RcvRFmsg
- 452  00de 2708          	jreq	L571
- 453                     ; 235                 flag_RF_StartRec = FALSE;
- 455  00e0 72110008      	bres	L74_flag_RF_StartRec
- 456                     ; 236                 RF_rcvState = RF_RCVSTATE_WAITSTART;
- 458  00e4 3f29          	clr	L15_RF_rcvState
- 460  00e6 2006          	jra	L371
- 461  00e8               L571:
- 462                     ; 240                 flag_RF_StartRec = TRUE;
- 464  00e8 72100008      	bset	L74_flag_RF_StartRec
- 465                     ; 241                 idx_temp2 = 0;
- 467  00ec 3f28          	clr	L54_idx_temp2
- 468  00ee               L371:
- 469                     ; 244             if(RF_bytes == RFSEND_DATALEN) 
- 471  00ee a105          	cp	a,#5
- 472  00f0 26e0          	jrne	L132
- 473                     ; 246               RFrcvChksum = 0;
- 475  00f2 3f00          	clr	L13_RFrcvChksum
- 476                     ; 247               for(i=0;i<RFSEND_DATALEN-1;i++)
- 478  00f4 4f            	clr	a
- 479  00f5 6b01          	ld	(OFST+0,sp),a
- 480  00f7               L302:
- 481                     ; 249                 RFrcvChksum += RcvRFmsg.RFmsgarray[i];
- 483  00f7 5f            	clrw	x
- 484  00f8 97            	ld	xl,a
- 485  00f9 b600          	ld	a,L13_RFrcvChksum
- 486  00fb eb9c          	add	a,(_RcvRFmsg,x)
- 487  00fd b700          	ld	L13_RFrcvChksum,a
- 488                     ; 247               for(i=0;i<RFSEND_DATALEN-1;i++)
- 490  00ff 0c01          	inc	(OFST+0,sp)
- 493  0101 7b01          	ld	a,(OFST+0,sp)
- 494  0103 a104          	cp	a,#4
- 495  0105 25f0          	jrult	L302
- 496                     ; 251               RFrcvChksum = (u8)(~RFrcvChksum);
- 498  0107 3300          	cpl	L13_RFrcvChksum
- 499                     ; 252               if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
- 501  0109 b6a0          	ld	a,_RcvRFmsg+4
- 502  010b b100          	cp	a,L13_RFrcvChksum
- 503  010d 2704ac960196  	jrne	L152
- 504                     ; 254                 RFbytesReady = TRUE;  // set new RF data available flag
- 505                     ; 256               flag_RF_StartRec = FALSE;
- 506                     ; 257               RF_rcvState = RF_RCVSTATE_WAITSTART;
- 507                     ; 260           rf_offset = 0;
- 509  0113 207d          	jpf	LC005
- 510  0115               L561:
- 511                     ; 262         else if(rf_high_time <= rf_halfbittime+RF_EDGES_JITTER && rf_high_time >= rf_halfbittime-RF_EDGES_JITTER)
- 513  0115 be1a          	ldw	x,L12_rf_halfbittime
- 514  0117 1c0032        	addw	x,#50
- 515  011a b31e          	cpw	x,L52_rf_high_time
- 516  011c 2404acb701b7  	jrult	L552
- 518  0122 be1a          	ldw	x,L12_rf_halfbittime
- 519  0124 1d0032        	subw	x,#50
- 520  0127 b31e          	cpw	x,L52_rf_high_time
- 521  0129 22f3          	jrugt	L552
- 522                     ; 264           rf_offset = rf_high_time;
- 524  012b be1e          	ldw	x,L52_rf_high_time
- 526  012d 206e          	jpf	LC002
- 527                     ; 268           RF_rcvState = RF_RCVSTATE_WAITSTART;
- 528  012f               L361:
- 529                     ; 271       else if(FLAG_fall_edge)
- 531  012f b616          	ld	a,L31_FLAG_fall_edge
- 532  0131 2604acb901b9  	jreq	L551
- 533                     ; 273         rf_low_time = cap_rise-cap_fall;
- 535  0137 be99          	ldw	x,L5_cap_rise
- 536  0139 72b00097      	subw	x,L7_cap_fall
- 537  013d bf1c          	ldw	L32_rf_low_time,x
- 538                     ; 274         if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
- 540  013f 8de401e4      	callf	LC007
- 541  0143 225c          	jrugt	L522
- 543  0145 8df501f5      	callf	LC008
- 544  0149 2556          	jrult	L522
- 545                     ; 277           RF_bits++;
- 547  014b 3c25          	inc	L53_RF_bits
- 548                     ; 278           if(RF_bits < 8) RF_data <<= 1;
- 550  014d b625          	ld	a,L53_RF_bits
- 551  014f a108          	cp	a,#8
- 552  0151 2402          	jruge	L722
- 555  0153 3827          	sll	L14_RF_data
- 556  0155               L722:
- 557                     ; 279           if(RF_bits == 8)
- 559  0155 a108          	cp	a,#8
- 560  0157 2643          	jrne	L132
- 561                     ; 282             RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
- 563  0159 8dd101d1      	callf	LC006
- 564  015d 2612          	jrne	L332
- 565                     ; 287               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
- 567  015f be9c          	ldw	x,_RcvRFmsg
- 568  0161 2708          	jreq	L532
- 569                     ; 290                 flag_RF_StartRec = FALSE;
- 571  0163 72110008      	bres	L74_flag_RF_StartRec
- 572                     ; 291                 RF_rcvState = RF_RCVSTATE_WAITSTART;
- 574  0167 3f29          	clr	L15_RF_rcvState
- 576  0169 2006          	jra	L332
- 577  016b               L532:
- 578                     ; 295                 flag_RF_StartRec = TRUE;
- 580  016b 72100008      	bset	L74_flag_RF_StartRec
- 581                     ; 296                 idx_temp2 = 0;
- 583  016f 3f28          	clr	L54_idx_temp2
- 584  0171               L332:
- 585                     ; 299             if(RF_bytes == RFSEND_DATALEN) 
- 587  0171 a105          	cp	a,#5
- 588  0173 2627          	jrne	L132
- 589                     ; 301               RFrcvChksum = 0;
- 591  0175 3f00          	clr	L13_RFrcvChksum
- 592                     ; 302               for(i=0;i<RFSEND_DATALEN-1;i++)
- 594  0177 4f            	clr	a
- 595  0178 6b01          	ld	(OFST+0,sp),a
- 596  017a               L342:
- 597                     ; 304                 RFrcvChksum += RcvRFmsg.RFmsgarray[i];
- 599  017a 5f            	clrw	x
- 600  017b 97            	ld	xl,a
- 601  017c b600          	ld	a,L13_RFrcvChksum
- 602  017e eb9c          	add	a,(_RcvRFmsg,x)
- 603  0180 b700          	ld	L13_RFrcvChksum,a
- 604                     ; 302               for(i=0;i<RFSEND_DATALEN-1;i++)
- 606  0182 0c01          	inc	(OFST+0,sp)
- 609  0184 7b01          	ld	a,(OFST+0,sp)
- 610  0186 a104          	cp	a,#4
- 611  0188 25f0          	jrult	L342
- 612                     ; 306               RFrcvChksum = (u8)(~RFrcvChksum);
- 614  018a 3300          	cpl	L13_RFrcvChksum
- 615                     ; 307               if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
- 617  018c b6a0          	ld	a,_RcvRFmsg+4
- 618  018e b100          	cp	a,L13_RFrcvChksum
- 619  0190 2604          	jrne	L152
- 620                     ; 309                 RFbytesReady = TRUE;  // set new RF data available flag
- 622  0192               LC005:
- 624  0192 35010023      	mov	_RFbytesReady,#1
- 625  0196               L152:
- 626                     ; 311               flag_RF_StartRec = FALSE;
- 628                     ; 312               RF_rcvState = RF_RCVSTATE_WAITSTART;
- 631  0196 72110008      	bres	L74_flag_RF_StartRec
- 633  019a 3f29          	clr	L15_RF_rcvState
- 634  019c               L132:
- 635                     ; 315           rf_offset = 0;
- 638  019c 5f            	clrw	x
- 639  019d               LC002:
- 640  019d bf20          	ldw	L72_rf_offset,x
- 642  019f 2018          	jra	L551
- 643  01a1               L522:
- 644                     ; 317         else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
- 646  01a1 be1a          	ldw	x,L12_rf_halfbittime
- 647  01a3 1c0032        	addw	x,#50
- 648  01a6 b31c          	cpw	x,L32_rf_low_time
- 649  01a8 250d          	jrult	L552
- 651  01aa be1a          	ldw	x,L12_rf_halfbittime
- 652  01ac 1d0032        	subw	x,#50
- 653  01af b31c          	cpw	x,L32_rf_low_time
- 654  01b1 2204          	jrugt	L552
- 655                     ; 319           rf_offset = rf_low_time;
- 657  01b3 be1c          	ldw	x,L32_rf_low_time
- 659  01b5 20e6          	jpf	LC002
- 660  01b7               L552:
- 661                     ; 323           RF_rcvState = RF_RCVSTATE_WAITSTART;
- 664  01b7 3f29          	clr	L15_RF_rcvState
- 665                     ; 328     default: break;
- 667  01b9               L551:
- 668                     ; 330   TIM3_ClearITPendingBit(TIM3_IT_CC1);
- 670  01b9 a602          	ld	a,#2
- 671  01bb cd0000        	call	_TIM3_ClearITPendingBit
- 673                     ; 331   TIM3_ClearITPendingBit(TIM3_IT_CC2);
- 675  01be a604          	ld	a,#4
- 676  01c0 cd0000        	call	_TIM3_ClearITPendingBit
- 678                     ; 332 }
- 681  01c3 84            	pop	a
- 682  01c4 85            	popw	x
- 683  01c5 bf00          	ldw	c_y,x
- 684  01c7 320002        	pop	c_y+2
- 685  01ca 85            	popw	x
- 686  01cb bf00          	ldw	c_x,x
- 687  01cd 320002        	pop	c_x+2
- 688  01d0 80            	iret	
- 689  01d1               LC006:
- 690  01d1 b626          	ld	a,L73_RF_bytes
- 691  01d3 3c26          	inc	L73_RF_bytes
- 692  01d5 5f            	clrw	x
- 693  01d6 97            	ld	xl,a
- 694  01d7 b627          	ld	a,L14_RF_data
- 695  01d9 e79c          	ld	(_RcvRFmsg,x),a
- 696                     ; 228             RF_bits = 0;
- 698  01db 3f25          	clr	L53_RF_bits
- 699                     ; 229             RF_data = 0;
- 701  01dd 3f27          	clr	L14_RF_data
- 702                     ; 230             if(RF_bytes == 2)
- 704  01df b626          	ld	a,L73_RF_bytes
- 705  01e1 a102          	cp	a,#2
- 706  01e3 87            	retf	
- 707  01e4               LC007:
- 708  01e4 90be18        	ldw	y,L71_rf_bittime
- 709  01e7 72bb0020      	addw	x,L72_rf_offset
- 710  01eb 72a90032      	addw	y,#50
- 711  01ef 90bf00        	ldw	c_y,y
- 712  01f2 b300          	cpw	x,c_y
- 713  01f4 87            	retf	
- 714  01f5               LC008:
- 715  01f5 90be18        	ldw	y,L71_rf_bittime
- 716  01f8 72a20032      	subw	y,#50
- 717  01fc 90bf00        	ldw	c_y,y
- 718  01ff b300          	cpw	x,c_y
- 719  0201 87            	retf	
- 741                     ; 339 INTERRUPT_HANDLER_TRAP(TRAP_IRQHandler)
- 741                     ; 340 {
- 742                     .text:	section	.text,new
- 743  0000               f_TRAP_IRQHandler:
- 747                     ; 344 }
- 750  0000 80            	iret	
- 772                     ; 351 INTERRUPT_HANDLER(FLASH_IRQHandler,1)
- 772                     ; 352 {
- 773                     .text:	section	.text,new
- 774  0000               f_FLASH_IRQHandler:
- 778                     ; 356 }
- 781  0000 80            	iret	
- 803                     ; 363 INTERRUPT_HANDLER(AWU_IRQHandler,4)
- 803                     ; 364 {
- 804                     .text:	section	.text,new
- 805  0000               f_AWU_IRQHandler:
- 809                     ; 368 }
- 812  0000 80            	iret	
- 834                     ; 375 INTERRUPT_HANDLER(EXTIB_IRQHandler, 6)
- 834                     ; 376 {
- 835                     .text:	section	.text,new
- 836  0000               f_EXTIB_IRQHandler:
- 840                     ; 380 }
- 843  0000 80            	iret	
- 865                     ; 387 INTERRUPT_HANDLER(EXTID_IRQHandler, 7)
- 865                     ; 388 {
- 866                     .text:	section	.text,new
- 867  0000               f_EXTID_IRQHandler:
- 871                     ; 392 }
- 874  0000 80            	iret	
- 896                     ; 399 INTERRUPT_HANDLER(EXTI0_IRQHandler, 8)
- 896                     ; 400 {
- 897                     .text:	section	.text,new
- 898  0000               f_EXTI0_IRQHandler:
- 902                     ; 404 }
- 905  0000 80            	iret	
- 927                     ; 411 INTERRUPT_HANDLER(EXTI1_IRQHandler, 9)
- 927                     ; 412 {
- 928                     .text:	section	.text,new
- 929  0000               f_EXTI1_IRQHandler:
- 933                     ; 416 }
- 936  0000 80            	iret	
- 958                     ; 423 INTERRUPT_HANDLER(EXTI2_IRQHandler, 10)
- 958                     ; 424 {
- 959                     .text:	section	.text,new
- 960  0000               f_EXTI2_IRQHandler:
- 964                     ; 428 }
- 967  0000 80            	iret	
- 989                     ; 435 INTERRUPT_HANDLER(EXTI3_IRQHandler, 11)
- 989                     ; 436 {
- 990                     .text:	section	.text,new
- 991  0000               f_EXTI3_IRQHandler:
- 995                     ; 440 }
- 998  0000 80            	iret	
-1020                     ; 447 INTERRUPT_HANDLER(EXTI4_IRQHandler, 12)
-1020                     ; 448 {
-1021                     .text:	section	.text,new
-1022  0000               f_EXTI4_IRQHandler:
-1026                     ; 452 }
-1029  0000 80            	iret	
-1051                     ; 459 INTERRUPT_HANDLER(EXTI5_IRQHandler, 13)
-1051                     ; 460 {
-1052                     .text:	section	.text,new
-1053  0000               f_EXTI5_IRQHandler:
-1057                     ; 464 }
-1060  0000 80            	iret	
-1082                     ; 471 INTERRUPT_HANDLER(EXTI6_IRQHandler, 14)
-1082                     ; 472 {
-1083                     .text:	section	.text,new
-1084  0000               f_EXTI6_IRQHandler:
-1088                     ; 476 }
-1091  0000 80            	iret	
-1113                     ; 483 INTERRUPT_HANDLER(EXTI7_IRQHandler, 15)
-1113                     ; 484 {
-1114                     .text:	section	.text,new
-1115  0000               f_EXTI7_IRQHandler:
-1119                     ; 488 }
-1122  0000 80            	iret	
-1144                     ; 495 INTERRUPT_HANDLER(COMP_IRQHandler, 18)
-1144                     ; 496 {
-1145                     .text:	section	.text,new
-1146  0000               f_COMP_IRQHandler:
-1150                     ; 500 }
-1153  0000 80            	iret	
-1211                     ; 507 INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
-1211                     ; 508 {
-1212                     .text:	section	.text,new
-1213  0000               f_TIM2_UPD_OVF_TRG_BRK_IRQHandler:
-1215  0000 8a            	push	cc
-1216  0001 84            	pop	a
-1217  0002 a4bf          	and	a,#191
-1218  0004 88            	push	a
-1219  0005 86            	pop	cc
-1220  0006 3b0002        	push	c_x+2
-1221  0009 be00          	ldw	x,c_x
-1222  000b 89            	pushw	x
-1223  000c 3b0002        	push	c_y+2
-1224  000f be00          	ldw	x,c_y
-1225  0011 89            	pushw	x
-1228                     ; 512   interrupt_status = 1;
-1230  0012 3501009b      	mov	L3_interrupt_status,#1
-1231                     ; 513   if(TIM2_GetITStatus(TIM2_IT_Update))  //1ms
-1233  0016 a601          	ld	a,#1
-1234  0018 cd0000        	call	_TIM2_GetITStatus
-1236  001b 4d            	tnz	a
-1237  001c 2604aca401a4  	jreq	L154
-1238                     ; 516     if(cnt_flag_250ms < U16_MAX) cnt_flag_250ms++;
-1240  0022 be00          	ldw	x,_cnt_flag_250ms
-1241  0024 a3ffff        	cpw	x,#65535
-1242  0027 2403          	jruge	L354
-1245  0029 5c            	incw	x
-1246  002a bf00          	ldw	_cnt_flag_250ms,x
-1247  002c               L354:
-1248                     ; 517     if(cnt_flag_250ms >= CNTVAL_250MS) 
-1250  002c a300fa        	cpw	x,#250
-1251  002f 2507          	jrult	L554
-1252                     ; 519       cnt_flag_250ms = 0;
-1254  0031 5f            	clrw	x
-1255  0032 bf00          	ldw	_cnt_flag_250ms,x
-1256                     ; 520       FLAG_250ms = TRUE;
-1258  0034 72100000      	bset	_FLAG_250ms
-1259  0038               L554:
-1260                     ; 522     if(cnt_flag_500ms < U16_MAX) cnt_flag_500ms++;
-1262  0038 be02          	ldw	x,_cnt_flag_500ms
-1263  003a a3ffff        	cpw	x,#65535
-1264  003d 2403          	jruge	L754
-1267  003f 5c            	incw	x
-1268  0040 bf02          	ldw	_cnt_flag_500ms,x
-1269  0042               L754:
-1270                     ; 523     if(cnt_flag_500ms >= CNTVAL_500MS) 
-1272  0042 a301f4        	cpw	x,#500
-1273  0045 2507          	jrult	L164
-1274                     ; 525       cnt_flag_500ms = 0;
-1276  0047 5f            	clrw	x
-1277  0048 bf02          	ldw	_cnt_flag_500ms,x
-1278                     ; 526       FLAG_500ms = TRUE;
-1280  004a 72100001      	bset	_FLAG_500ms
-1281  004e               L164:
-1282                     ; 528     if(cnt_flag_1000ms < U16_MAX) cnt_flag_1000ms++;
-1284  004e be04          	ldw	x,_cnt_flag_1000ms
-1285  0050 a3ffff        	cpw	x,#65535
-1286  0053 2403          	jruge	L364
-1289  0055 5c            	incw	x
-1290  0056 bf04          	ldw	_cnt_flag_1000ms,x
-1291  0058               L364:
-1292                     ; 529     if(cnt_flag_1000ms >= CNTVAL_1000MS) 
-1294  0058 a303e8        	cpw	x,#1000
-1295  005b 2507          	jrult	L564
-1296                     ; 531       cnt_flag_1000ms = 0;
-1298  005d 5f            	clrw	x
-1299  005e bf04          	ldw	_cnt_flag_1000ms,x
-1300                     ; 532       FLAG_1000ms = TRUE;
-1302  0060 72100002      	bset	_FLAG_1000ms
-1303  0064               L564:
-1304                     ; 535     if(!Timeout_istout1)
-1306  0064 720000000d    	btjt	_Timeout_istout1,L764
-1307                     ; 537       Timeout_toutcnt1++;
-1309  0069 be00          	ldw	x,_Timeout_toutcnt1
-1310  006b 5c            	incw	x
-1311  006c bf00          	ldw	_Timeout_toutcnt1,x
-1312                     ; 538       if(Timeout_toutcnt1 >= Timeout_tout1) Timeout_istout1 = TRUE;
-1314  006e b300          	cpw	x,_Timeout_tout1
-1315  0070 2504          	jrult	L764
-1318  0072 72100000      	bset	_Timeout_istout1
-1319  0076               L764:
-1320                     ; 540     if(!Timeout_istout2)
-1322  0076 720000000d    	btjt	_Timeout_istout2,L374
-1323                     ; 542       Timeout_toutcnt2++;
-1325  007b be00          	ldw	x,_Timeout_toutcnt2
-1326  007d 5c            	incw	x
-1327  007e bf00          	ldw	_Timeout_toutcnt2,x
-1328                     ; 543       if(Timeout_toutcnt2 >= Timeout_tout2) Timeout_istout2 = TRUE;
-1330  0080 b300          	cpw	x,_Timeout_tout2
-1331  0082 2504          	jrult	L374
-1334  0084 72100000      	bset	_Timeout_istout2
-1335  0088               L374:
-1336                     ; 545     if(!Timeout_istout3)
-1338  0088 720000000d    	btjt	_Timeout_istout3,L774
-1339                     ; 547       Timeout_toutcnt3++;
-1341  008d be00          	ldw	x,_Timeout_toutcnt3
-1342  008f 5c            	incw	x
-1343  0090 bf00          	ldw	_Timeout_toutcnt3,x
-1344                     ; 548       if(Timeout_toutcnt3 >= Timeout_tout3) Timeout_istout3 = TRUE;
-1346  0092 b300          	cpw	x,_Timeout_tout3
-1347  0094 2504          	jrult	L774
-1350  0096 72100000      	bset	_Timeout_istout3
-1351  009a               L774:
-1352                     ; 551     if(RFrcvTimeoutcnt < 255) RFrcvTimeoutcnt++;
-1354  009a b624          	ld	a,L33_RFrcvTimeoutcnt
-1355  009c a1ff          	cp	a,#255
-1356  009e 2402          	jruge	L305
-1359  00a0 3c24          	inc	L33_RFrcvTimeoutcnt
-1360  00a2               L305:
-1361                     ; 552     if(RFrcvTimeoutcnt >= RF_RCVTIMEOUT)
-1363                     ; 558     if(!BTN1_STATE)
-1365  00a2 7204500116    	btjt	20481,#2,L705
-1366                     ; 560       if(btn1_0_cnt < U8_MAX) btn1_0_cnt++;
-1368  00a7 b606          	ld	a,_btn1_0_cnt
-1369  00a9 a1ff          	cp	a,#255
-1370  00ab 2402          	jruge	L115
-1373  00ad 3c06          	inc	_btn1_0_cnt
-1374  00af               L115:
-1375                     ; 561       btn1_1_cnt = 0;
-1377  00af 3f07          	clr	_btn1_1_cnt
-1378                     ; 562       if(btn1_0_cnt >= DIG_IN_DEB_TIME)
-1380  00b1 b606          	ld	a,_btn1_0_cnt
-1381  00b3 a11e          	cp	a,#30
-1382  00b5 2518          	jrult	L515
-1383                     ; 564         BTN1_DEB_STATE = BTN_PRESSED;
-1385  00b7 35010008      	mov	_BTN1_DEB_STATE,#1
-1386  00bb 2012          	jra	L515
-1387  00bd               L705:
-1388                     ; 569       if(btn1_1_cnt < U8_MAX) btn1_1_cnt++;
-1390  00bd b607          	ld	a,_btn1_1_cnt
-1391  00bf a1ff          	cp	a,#255
-1392  00c1 2402          	jruge	L715
-1395  00c3 3c07          	inc	_btn1_1_cnt
-1396  00c5               L715:
-1397                     ; 570       btn1_0_cnt = 0;
-1399  00c5 3f06          	clr	_btn1_0_cnt
-1400                     ; 571       if(btn1_1_cnt >= DIG_IN_DEB_TIME)
-1402  00c7 b607          	ld	a,_btn1_1_cnt
-1403  00c9 a11e          	cp	a,#30
-1404  00cb 2502          	jrult	L515
-1405                     ; 573         BTN1_DEB_STATE = BTN_DEPRESSED;
-1407  00cd 3f08          	clr	_BTN1_DEB_STATE
-1408  00cf               L515:
-1409                     ; 579     if(BTN1_DEB_STATE == BTN_PRESSED)
-1411  00cf b608          	ld	a,_BTN1_DEB_STATE
-1412  00d1 4a            	dec	a
-1413  00d2 260a          	jrne	L325
-1414                     ; 581       if(BTN1_press_timer < U16_MAX) BTN1_press_timer++;
-1416  00d4 be0a          	ldw	x,_BTN1_press_timer
-1417  00d6 a3ffff        	cpw	x,#65535
-1418  00d9 2403          	jruge	L325
-1421  00db 5c            	incw	x
-1422  00dc bf0a          	ldw	_BTN1_press_timer,x
-1423  00de               L325:
-1424                     ; 584     if(!BTN1_DELAY_FLAG)
-1426  00de 720000030e    	btjt	_BTN1_DELAY_FLAG,L725
-1427                     ; 586       btn1_delay_cnt++;
-1429  00e3 3c09          	inc	_btn1_delay_cnt
-1430                     ; 587       if(btn1_delay_cnt == BTN_DELAY)
-1432  00e5 b609          	ld	a,_btn1_delay_cnt
-1433  00e7 a196          	cp	a,#150
-1434  00e9 2606          	jrne	L725
-1435                     ; 589         btn1_delay_cnt = 0;
-1437  00eb 3f09          	clr	_btn1_delay_cnt
-1438                     ; 590         BTN1_DELAY_FLAG = TRUE;
-1440  00ed 72100003      	bset	_BTN1_DELAY_FLAG
-1441  00f1               L725:
-1442                     ; 596     if(flag_blink_redLED)
-1444  00f1 7201000550    	btjf	_flag_blink_redLED,L335
-1445                     ; 598       if(cnt_state_redLED < U16_MAX) cnt_state_redLED++;
-1447  00f6 be0d          	ldw	x,_cnt_state_redLED
-1448  00f8 a3ffff        	cpw	x,#65535
-1449  00fb 2403          	jruge	L535
-1452  00fd 5c            	incw	x
-1453  00fe bf0d          	ldw	_cnt_state_redLED,x
-1454  0100               L535:
-1455                     ; 599       if(flag_blink_on_off)
-1457  0100 7201000412    	btjf	_flag_blink_on_off,L735
-1458                     ; 601         if(cnt_state_redLED >= LEDBLINK_ONTIME)
-1460  0105 a30032        	cpw	x,#50
-1461  0108 253c          	jrult	L335
-1462                     ; 603           flag_blink_on_off = FALSE;
-1464  010a 72110004      	bres	_flag_blink_on_off
-1465                     ; 604           cnt_state_redLED = 0;
-1467  010e 5f            	clrw	x
-1468  010f bf0d          	ldw	_cnt_state_redLED,x
-1469                     ; 605           LED_OFF;
-1471  0111 7217500a      	bres	20490,#3
-1474  0115 202b          	jpf	LC009
-1475  0117               L735:
-1476                     ; 610         if(cnt_state_redLED >= LEDBLINK_OFFTIME)
-1478  0117 a300c8        	cpw	x,#200
-1479  011a 252a          	jrult	L335
-1480                     ; 612           if(cnt_blink_redLED < U8_MAX) cnt_blink_redLED++;
-1482  011c b611          	ld	a,_cnt_blink_redLED
-1483  011e a1ff          	cp	a,#255
-1484  0120 2402          	jruge	L745
-1487  0122 3c11          	inc	_cnt_blink_redLED
-1488  0124               L745:
-1489                     ; 613           flag_blink_on_off = TRUE;
-1491  0124 72100004      	bset	_flag_blink_on_off
-1492                     ; 614           cnt_state_redLED = 0;
-1494  0128 5f            	clrw	x
-1495  0129 bf0d          	ldw	_cnt_state_redLED,x
-1496                     ; 615           if(cnt_blink_redLED >= blink_redLED_times && !flag_blink_unlimited)
-1498  012b b611          	ld	a,_cnt_blink_redLED
-1499  012d b113          	cp	a,_blink_redLED_times
-1500  012f 250d          	jrult	L155
-1502  0131 7200000708    	btjt	_flag_blink_unlimited,L155
-1503                     ; 617             flag_blink_redLED = FALSE;
-1505  0136 72110005      	bres	_flag_blink_redLED
-1506                     ; 618             cnt_blink_redLED = 0;
-1508  013a 3f11          	clr	_cnt_blink_redLED
-1510  013c 2008          	jra	L335
-1511  013e               L155:
-1512                     ; 622             LED_RED_ON;
-1514  013e 7216500a      	bset	20490,#3
-1517  0142               LC009:
-1519  0142 7219500a      	bres	20490,#4
-1521  0146               L335:
-1522                     ; 627     if(flag_blink_greenLED)
-1524  0146 7201000654    	btjf	_flag_blink_greenLED,L555
-1525                     ; 629       if(cnt_state_greenLED < U16_MAX) cnt_state_greenLED++;
-1527  014b be0f          	ldw	x,_cnt_state_greenLED
-1528  014d a3ffff        	cpw	x,#65535
-1529  0150 2403          	jruge	L755
-1532  0152 5c            	incw	x
-1533  0153 bf0f          	ldw	_cnt_state_greenLED,x
-1534  0155               L755:
-1535                     ; 630       if(flag_blink_on_off)
-1537  0155 7201000416    	btjf	_flag_blink_on_off,L165
-1538                     ; 632         if(cnt_state_greenLED >= LEDBLINK_ONTIME)
-1540  015a a30032        	cpw	x,#50
-1541  015d 2540          	jrult	L555
-1542                     ; 634           flag_blink_on_off = FALSE;
-1544  015f 72110004      	bres	_flag_blink_on_off
-1545                     ; 635           cnt_state_greenLED = 0;
-1547  0163 5f            	clrw	x
-1548  0164 bf0f          	ldw	_cnt_state_greenLED,x
-1549                     ; 636           LED_OFF;
-1551  0166 7217500a      	bres	20490,#3
-1554  016a 7219500a      	bres	20490,#4
-1556  016e 202f          	jra	L555
-1557  0170               L165:
-1558                     ; 641         if(cnt_state_greenLED >= LEDBLINK_OFFTIME)
-1560  0170 a300c8        	cpw	x,#200
-1561  0173 252a          	jrult	L555
-1562                     ; 643           if(cnt_blink_greenLED < U8_MAX) cnt_blink_greenLED++;
-1564  0175 b612          	ld	a,_cnt_blink_greenLED
-1565  0177 a1ff          	cp	a,#255
-1566  0179 2402          	jruge	L175
-1569  017b 3c12          	inc	_cnt_blink_greenLED
-1570  017d               L175:
-1571                     ; 644           flag_blink_on_off = TRUE;
-1573  017d 72100004      	bset	_flag_blink_on_off
-1574                     ; 645           cnt_state_greenLED = 0;
-1576  0181 5f            	clrw	x
-1577  0182 bf0f          	ldw	_cnt_state_greenLED,x
-1578                     ; 646           if(cnt_blink_greenLED >= blink_greenLED_times && !flag_blink_unlimited)
-1580  0184 b612          	ld	a,_cnt_blink_greenLED
-1581  0186 b114          	cp	a,_blink_greenLED_times
-1582  0188 250d          	jrult	L375
-1584  018a 7200000708    	btjt	_flag_blink_unlimited,L375
-1585                     ; 648             flag_blink_greenLED = FALSE;
-1587  018f 72110006      	bres	_flag_blink_greenLED
-1588                     ; 649             cnt_blink_greenLED = 0;
-1590  0193 3f12          	clr	_cnt_blink_greenLED
-1592  0195 2008          	jra	L555
-1593  0197               L375:
-1594                     ; 653             LED_GREEN_ON;
-1596  0197 7217500a      	bres	20490,#3
-1599  019b 7218500a      	bset	20490,#4
-1601  019f               L555:
-1602                     ; 659     TIM2_ClearITPendingBit(TIM2_IT_Update);        // clear TIM2 update interrupt flag
-1604  019f a601          	ld	a,#1
-1605  01a1 cd0000        	call	_TIM2_ClearITPendingBit
-1607  01a4               L154:
-1608                     ; 661   interrupt_status = 0;
-1610  01a4 3f9b          	clr	L3_interrupt_status
-1611                     ; 662 }
-1614  01a6 85            	popw	x
-1615  01a7 bf00          	ldw	c_y,x
-1616  01a9 320002        	pop	c_y+2
-1617  01ac 85            	popw	x
-1618  01ad bf00          	ldw	c_x,x
-1619  01af 320002        	pop	c_x+2
-1620  01b2 80            	iret	
-1643                     ; 669 INTERRUPT_HANDLER(TIM2_CAP_IRQHandler, 20)
-1643                     ; 670 {
-1644                     .text:	section	.text,new
-1645  0000               f_TIM2_CAP_IRQHandler:
-1649                     ; 674 }
-1652  0000 80            	iret	
-1675                     ; 681 INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
-1675                     ; 682 {
-1676                     .text:	section	.text,new
-1677  0000               f_TIM4_UPD_OVF_IRQHandler:
-1681                     ; 686 }
-1684  0000 80            	iret	
-1706                     ; 693 INTERRUPT_HANDLER(SPI_IRQHandler, 26)
-1706                     ; 694 {
-1707                     .text:	section	.text,new
-1708  0000               f_SPI_IRQHandler:
-1712                     ; 698 }
-1715  0000 80            	iret	
-1738                     ; 704 INTERRUPT_HANDLER(USART_TX_IRQHandler, 27)
-1738                     ; 705 {
-1739                     .text:	section	.text,new
-1740  0000               f_USART_TX_IRQHandler:
-1744                     ; 709 }
-1747  0000 80            	iret	
-1770                     ; 716 INTERRUPT_HANDLER(USART_RX_IRQHandler, 28)
-1770                     ; 717 {
-1771                     .text:	section	.text,new
-1772  0000               f_USART_RX_IRQHandler:
-1776                     ; 721 }
-1779  0000 80            	iret	
-1801                     ; 729 INTERRUPT_HANDLER(I2C_IRQHandler, 29)
-1801                     ; 730 {
-1802                     .text:	section	.text,new
-1803  0000               f_I2C_IRQHandler:
-1807                     ; 734 }
-1810  0000 80            	iret	
-2347                     	xdef	_FLAG_UART_cmd_rcv
-2348                     	switch	.ubsct
-2349  0000               L13_RFrcvChksum:
-2350  0000 00            	ds.b	1
-2351                     	xdef	_idx
-2352  0001               _rcv_buff:
-2353  0001 000000000000  	ds.b	150
-2354                     	xdef	_rcv_buff
-2355  0097               L7_cap_fall:
-2356  0097 0000          	ds.b	2
-2357  0099               L5_cap_rise:
-2358  0099 0000          	ds.b	2
-2359                     	xdef	_cnt_blink_greenLED
-2360                     	xdef	_cnt_blink_redLED
-2361                     	xdef	_debug
-2362  009b               L3_interrupt_status:
-2363  009b 00            	ds.b	1
-2364                     	xref.b	_Timeout_tout3
-2365                     	xref.b	_Timeout_tout2
-2366                     	xref.b	_Timeout_tout1
-2367                     	xref.b	_Timeout_toutcnt3
-2368                     	xref.b	_Timeout_toutcnt2
-2369                     	xref.b	_Timeout_toutcnt1
-2370                     	xbit	_Timeout_istout3
-2371                     	xbit	_Timeout_istout2
-2372                     	xbit	_Timeout_istout1
-2373                     	xdef	_btn1_delay_cnt
-2374                     	xdef	_btn1_1_cnt
-2375                     	xdef	_btn1_0_cnt
-2376                     	xdef	_cnt_flag_1000ms
-2377                     	xdef	_cnt_flag_500ms
-2378                     	xdef	_cnt_flag_250ms
-2379                     	xdef	f_I2C_IRQHandler
-2380                     	xdef	f_USART_RX_IRQHandler
-2381                     	xdef	f_USART_TX_IRQHandler
-2382                     	xdef	f_SPI_IRQHandler
-2383                     	xdef	f_TIM4_UPD_OVF_IRQHandler
-2384                     	xdef	f_TIM3_CAP_IRQHandler
-2385                     	xdef	f_TIM3_UPD_OVF_TRG_BRK_IRQHandler
-2386                     	xdef	f_TIM2_CAP_IRQHandler
-2387                     	xdef	f_TIM2_UPD_OVF_TRG_BRK_IRQHandler
-2388                     	xdef	f_COMP_IRQHandler
-2389                     	xdef	f_EXTI7_IRQHandler
-2390                     	xdef	f_EXTI6_IRQHandler
-2391                     	xdef	f_EXTI5_IRQHandler
-2392                     	xdef	f_EXTI4_IRQHandler
-2393                     	xdef	f_EXTI3_IRQHandler
-2394                     	xdef	f_EXTI2_IRQHandler
-2395                     	xdef	f_EXTI1_IRQHandler
-2396                     	xdef	f_EXTI0_IRQHandler
-2397                     	xdef	f_EXTID_IRQHandler
-2398                     	xdef	f_EXTIB_IRQHandler
-2399                     	xdef	f_AWU_IRQHandler
-2400                     	xdef	f_FLASH_IRQHandler
-2401                     	xdef	f_TRAP_IRQHandler
-2402                     	xdef	f_NonHandledInterrupt
-2403                     	xdef	_RFbytesReady
-2404  009c               _RcvRFmsg:
-2405  009c 0000000000    	ds.b	5
-2406                     	xdef	_RcvRFmsg
-2407                     	xdef	_flag_blink_unlimited
-2408                     	xdef	_flag_blink_greenLED
-2409                     	xdef	_flag_blink_redLED
-2410                     	xdef	_flag_blink_on_off
-2411                     	xdef	_cnt_state_greenLED
-2412                     	xdef	_cnt_state_redLED
-2413                     	xdef	_blink_greenLED_times
-2414                     	xdef	_blink_redLED_times
-2415                     	xdef	_FLAG_1000ms
-2416                     	xdef	_FLAG_500ms
-2417                     	xdef	_FLAG_250ms
-2418                     	xdef	_BTN1_press_timer
-2419                     	xdef	_BTN1_DELAY_FLAG
-2420                     	xdef	_BTN1_DEB_STATE
-2421                     	xref	_TIM3_ClearITPendingBit
-2422                     	xref	_TIM3_GetITStatus
-2423                     	xref	_TIM3_GetCapture2
-2424                     	xref	_TIM3_GetCapture1
-2425                     	xref	_TIM2_ClearITPendingBit
-2426                     	xref	_TIM2_GetITStatus
-2427                     	xref.b	c_x
-2428                     	xref.b	c_y
-2448                     	end
+ 107  0029               L54_RF_rcvState:
+ 108  0029 00            	dc.b	0
+ 109                     	switch	.bit
+ 110  0008               _FLAG_UART_cmd_rcv:
+ 111  0008 00            	dc.b	0
+ 141                     ; 130 INTERRUPT_HANDLER(NonHandledInterrupt,0)
+ 141                     ; 131 {
+ 142                     .text:	section	.text,new
+ 143  0000               f_NonHandledInterrupt:
+ 147                     ; 135 }
+ 150  0000 80            	iret	
+ 218                     ; 142 INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
+ 218                     ; 143 {
+ 219                     .text:	section	.text,new
+ 220  0000               f_TIM3_CAP_IRQHandler:
+ 222  0000 8a            	push	cc
+ 223  0001 84            	pop	a
+ 224  0002 a4bf          	and	a,#191
+ 225  0004 88            	push	a
+ 226  0005 86            	pop	cc
+ 227       00000001      OFST:	set	1
+ 228  0006 3b0002        	push	c_x+2
+ 229  0009 be00          	ldw	x,c_x
+ 230  000b 89            	pushw	x
+ 231  000c 3b0002        	push	c_y+2
+ 232  000f be00          	ldw	x,c_y
+ 233  0011 89            	pushw	x
+ 234  0012 88            	push	a
+ 237                     ; 151   if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
+ 239  0013 a602          	ld	a,#2
+ 240  0015 cd0000        	call	_TIM3_GetITStatus
+ 242  0018 4a            	dec	a
+ 243  0019 260b          	jrne	L511
+ 244                     ; 152     cap_rise = TIM3_GetCapture1();
+ 246  001b cd0000        	call	_TIM3_GetCapture1
+ 248  001e bf9d          	ldw	L5_cap_rise,x
+ 249                     ; 153     FLAG_rise_edge = TRUE;
+ 251  0020 35010015      	mov	L11_FLAG_rise_edge,#1
+ 253  0024 2002          	jra	L711
+ 254  0026               L511:
+ 255                     ; 155   else FLAG_rise_edge = FALSE;
+ 257  0026 3f15          	clr	L11_FLAG_rise_edge
+ 258  0028               L711:
+ 259                     ; 156   if(TIM3_GetITStatus(TIM3_IT_CC2) == SET) {
+ 261  0028 a604          	ld	a,#4
+ 262  002a cd0000        	call	_TIM3_GetITStatus
+ 264  002d 4a            	dec	a
+ 265  002e 260b          	jrne	L121
+ 266                     ; 157     cap_fall = TIM3_GetCapture2();
+ 268  0030 cd0000        	call	_TIM3_GetCapture2
+ 270  0033 bf9b          	ldw	L7_cap_fall,x
+ 271                     ; 158     FLAG_fall_edge = TRUE;
+ 273  0035 35010016      	mov	L31_FLAG_fall_edge,#1
+ 275  0039 2002          	jra	L321
+ 276  003b               L121:
+ 277                     ; 160   else FLAG_fall_edge = FALSE;
+ 279  003b 3f16          	clr	L31_FLAG_fall_edge
+ 280  003d               L321:
+ 281                     ; 161   if(FLAG_rise_edge && FLAG_fall_edge) {
+ 283  003d b615          	ld	a,L11_FLAG_rise_edge
+ 284  003f 2708          	jreq	L521
+ 286  0041 b616          	ld	a,L31_FLAG_fall_edge
+ 287  0043 2704          	jreq	L521
+ 288                     ; 162     FLAG_CC_Error = TRUE;
+ 290  0045 35010017      	mov	L51_FLAG_CC_Error,#1
+ 291  0049               L521:
+ 292                     ; 165   RFrcvTimeoutcnt = 0;
+ 294  0049 3f25          	clr	L53_RFrcvTimeoutcnt
+ 295                     ; 166   switch(RF_rcvState)
+ 297  004b b629          	ld	a,L54_RF_rcvState
+ 299                     ; 321     default: break;
+ 300  004d 270b          	jreq	L56
+ 301  004f 4a            	dec	a
+ 302  0050 2604acdf00df  	jreq	L76
+ 303  0056 acf901f9      	jra	L131
+ 304  005a               L56:
+ 305                     ; 170       if(FLAG_fall_edge)
+ 307  005a 3d16          	tnz	L31_FLAG_fall_edge
+ 308  005c 2725          	jreq	L331
+ 309                     ; 172         if(cap_fall >= 500 - RF_EDGES_JITTER && cap_fall <= 500 + RF_EDGES_JITTER)
+ 311  005e be9b          	ldw	x,L7_cap_fall
+ 312  0060 a301ae        	cpw	x,#430
+ 313  0063 251e          	jrult	L331
+ 315  0065 a3023b        	cpw	x,#571
+ 316  0068 2419          	jruge	L331
+ 317                     ; 174           rf_bittime = cap_fall;
+ 319  006a bf19          	ldw	L12_rf_bittime,x
+ 320                     ; 175           rf_halfbittime = rf_bittime >> 1;
+ 322  006c 54            	srlw	x
+ 323  006d bf1b          	ldw	L32_rf_halfbittime,x
+ 324                     ; 176           RF_bits = 0;
+ 326  006f b726          	ld	L73_RF_bits,a
+ 327                     ; 177           RF_bytes = 0;
+ 329  0071 b727          	ld	L14_RF_bytes,a
+ 330                     ; 178           RF_data = 0;
+ 332  0073 b728          	ld	L34_RF_data,a
+ 333                     ; 179           if(idx < RF_REC_LEN)
+ 335  0075 b623          	ld	a,_idx
+ 336  0077 a14d          	cp	a,#77
+ 337  0079 2404          	jruge	L731
+ 338                     ; 180           rcv_buff[0] = cap_fall;
+ 340  007b be9b          	ldw	x,L7_cap_fall
+ 341  007d bf01          	ldw	_rcv_buff,x
+ 342  007f               L731:
+ 343                     ; 181           FLAG_start_found = TRUE;
+ 345  007f 35010018      	mov	L71_FLAG_start_found,#1
+ 346  0083               L331:
+ 347                     ; 184       if(FLAG_rise_edge && FLAG_start_found)
+ 349  0083 b615          	ld	a,L11_FLAG_rise_edge
+ 350  0085 27cf          	jreq	L131
+ 352  0087 b618          	ld	a,L71_FLAG_start_found
+ 353  0089 27cb          	jreq	L131
+ 354                     ; 186         rf_low_time = cap_rise-cap_fall;
+ 356  008b be9d          	ldw	x,L5_cap_rise
+ 357  008d 72b0009b      	subw	x,L7_cap_fall
+ 358  0091 bf1d          	ldw	L52_rf_low_time,x
+ 359                     ; 187         if(rf_low_time <= rf_bittime+RF_EDGES_JITTER && rf_low_time >= rf_bittime-RF_EDGES_JITTER)
+ 361  0093 be19          	ldw	x,L12_rf_bittime
+ 362  0095 1c0046        	addw	x,#70
+ 363  0098 b31d          	cpw	x,L52_rf_low_time
+ 364  009a 251b          	jrult	L341
+ 366  009c be19          	ldw	x,L12_rf_bittime
+ 367  009e 1d0046        	subw	x,#70
+ 368  00a1 b31d          	cpw	x,L52_rf_low_time
+ 369  00a3 2212          	jrugt	L341
+ 370                     ; 190           RF_data |= 0x01;
+ 372  00a5 72100028      	bset	L34_RF_data,#0
+ 373                     ; 191           RF_bits++;
+ 375  00a9 3c26          	inc	L73_RF_bits
+ 376                     ; 192           RF_data <<= 1;
+ 378  00ab 3828          	sll	L34_RF_data
+ 379                     ; 193           idx = 2;
+ 381  00ad 35020023      	mov	_idx,#2
+ 382                     ; 194           rcv_buff[1] = rf_low_time;
+ 384  00b1 be1d          	ldw	x,L52_rf_low_time
+ 385  00b3 bf03          	ldw	_rcv_buff+2,x
+ 386                     ; 195           RF_rcvState = RF_RCVSTATE_RECBITS;
+ 388  00b5 201a          	jpf	LC001
+ 389  00b7               L341:
+ 390                     ; 197         else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
+ 392  00b7 be1b          	ldw	x,L32_rf_halfbittime
+ 393  00b9 1c0046        	addw	x,#70
+ 394  00bc b31d          	cpw	x,L52_rf_low_time
+ 395  00be 2517          	jrult	L741
+ 397  00c0 be1b          	ldw	x,L32_rf_halfbittime
+ 398  00c2 1d0046        	subw	x,#70
+ 399  00c5 b31d          	cpw	x,L52_rf_low_time
+ 400  00c7 220e          	jrugt	L741
+ 401                     ; 199           rf_offset = rf_low_time;
+ 403  00c9 be1d          	ldw	x,L52_rf_low_time
+ 404  00cb bf21          	ldw	L13_rf_offset,x
+ 405                     ; 200           idx = 2;
+ 407  00cd 35020023      	mov	_idx,#2
+ 408                     ; 201           RF_rcvState = RF_RCVSTATE_RECBITS;
+ 410  00d1               LC001:
+ 412  00d1 35010029      	mov	L54_RF_rcvState,#1
+ 414  00d5 2002          	jra	L541
+ 415  00d7               L741:
+ 416                     ; 205           RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 418  00d7 3f29          	clr	L54_RF_rcvState
+ 419  00d9               L541:
+ 420                     ; 207         FLAG_start_found = FALSE;
+ 422  00d9 3f18          	clr	L71_FLAG_start_found
+ 423  00db acf901f9      	jra	L131
+ 424  00df               L76:
+ 425                     ; 214       if(idx < RF_REC_LEN)
+ 427  00df b623          	ld	a,_idx
+ 428  00e1 a14d          	cp	a,#77
+ 429  00e3 2425          	jruge	L351
+ 430                     ; 216         if(FLAG_rise_edge) rcv_buff[idx++] = cap_rise-cap_fall;
+ 432  00e5 b615          	ld	a,L11_FLAG_rise_edge
+ 433  00e7 2715          	jreq	L551
+ 436  00e9 be9d          	ldw	x,L5_cap_rise
+ 437  00eb 72b0009b      	subw	x,L7_cap_fall
+ 438  00ef b623          	ld	a,_idx
+ 439  00f1 3c23          	inc	_idx
+ 440  00f3 905f          	clrw	y
+ 441  00f5 9097          	ld	yl,a
+ 442  00f7 9058          	sllw	y
+ 443  00f9 90ef01        	ldw	(_rcv_buff,y),x
+ 445  00fc 200c          	jra	L351
+ 446  00fe               L551:
+ 447                     ; 217         else rcv_buff[idx++] = cap_fall;
+ 449  00fe b623          	ld	a,_idx
+ 450  0100 3c23          	inc	_idx
+ 451  0102 5f            	clrw	x
+ 452  0103 97            	ld	xl,a
+ 453  0104 58            	sllw	x
+ 454  0105 90be9b        	ldw	y,L7_cap_fall
+ 455  0108 ef01          	ldw	(_rcv_buff,x),y
+ 456  010a               L351:
+ 457                     ; 222       if(FLAG_rise_edge)
+ 459  010a b615          	ld	a,L11_FLAG_rise_edge
+ 460  010c 2776          	jreq	L161
+ 461                     ; 224         rf_low_time = cap_rise-cap_fall;
+ 463  010e be9d          	ldw	x,L5_cap_rise
+ 464  0110 72b0009b      	subw	x,L7_cap_fall
+ 465  0114 bf1d          	ldw	L52_rf_low_time,x
+ 466                     ; 225         if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+ 468  0116 8d240224      	callf	LC008
+ 469  011a 224e          	jrugt	L361
+ 471  011c 8d350235      	callf	LC009
+ 472  0120 2548          	jrult	L361
+ 473                     ; 228           RF_data |= 0x01;
+ 475  0122 72100028      	bset	L34_RF_data,#0
+ 476                     ; 229           RF_bits++;
+ 478  0126 3c26          	inc	L73_RF_bits
+ 479                     ; 230           if(RF_bits < 8) RF_data <<= 1;
+ 481  0128 b626          	ld	a,L73_RF_bits
+ 482  012a a108          	cp	a,#8
+ 483  012c 2402          	jruge	L561
+ 486  012e 3828          	sll	L34_RF_data
+ 487  0130               L561:
+ 488                     ; 231           if(RF_bits == 8)
+ 490  0130 a108          	cp	a,#8
+ 491  0132 2704acdc01dc  	jrne	L522
+ 492                     ; 234             RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
+ 494  0138 8d110211      	callf	LC007
+ 495  013c 2609          	jrne	L171
+ 496                     ; 239               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
+ 498  013e bea0          	ldw	x,_RcvRFmsg
+ 499  0140 a3a55a        	cpw	x,#42330
+ 500  0143 2702          	jreq	L171
+ 501                     ; 242                 RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 503  0145 3f29          	clr	L54_RF_rcvState
+ 504  0147               L171:
+ 505                     ; 245             if(RF_bytes == RFSEND_DATALEN) 
+ 507  0147 a105          	cp	a,#5
+ 508  0149 26e9          	jrne	L522
+ 509                     ; 247               RFrcvChksum = 0;
+ 511  014b 3f00          	clr	L33_RFrcvChksum
+ 512                     ; 248               for(i=0;i<RFSEND_DATALEN-1;i++)
+ 514  014d 4f            	clr	a
+ 515  014e 6b01          	ld	(OFST+0,sp),a
+ 516  0150               L771:
+ 517                     ; 250                 RFrcvChksum += RcvRFmsg.RFmsgarray[i];
+ 519  0150 5f            	clrw	x
+ 520  0151 97            	ld	xl,a
+ 521  0152 b600          	ld	a,L33_RFrcvChksum
+ 522  0154 eba0          	add	a,(_RcvRFmsg,x)
+ 523  0156 b700          	ld	L33_RFrcvChksum,a
+ 524                     ; 248               for(i=0;i<RFSEND_DATALEN-1;i++)
+ 526  0158 0c01          	inc	(OFST+0,sp)
+ 529  015a 7b01          	ld	a,(OFST+0,sp)
+ 530  015c a104          	cp	a,#4
+ 531  015e 25f0          	jrult	L771
+ 532                     ; 252               RFrcvChksum = (u8)(~RFrcvChksum);
+ 534  0160 3300          	cpl	L33_RFrcvChksum
+ 535                     ; 253               if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
+ 537  0162 b6a4          	ld	a,_RcvRFmsg+4
+ 538  0164 b100          	cp	a,L33_RFrcvChksum
+ 539  0166 2672          	jrne	L342
+ 540                     ; 255                 RFbytesReady = TRUE;  // set new RF data available flag
+ 541                     ; 257               RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 542                     ; 260           rf_offset = 0;
+ 544  0168 206c          	jpf	LC006
+ 545  016a               L361:
+ 546                     ; 262         else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
+ 548  016a be1b          	ldw	x,L32_rf_halfbittime
+ 549  016c 1c0046        	addw	x,#70
+ 550  016f b31d          	cpw	x,L52_rf_low_time
+ 551  0171 2404acf701f7  	jrult	L742
+ 553  0177 be1b          	ldw	x,L32_rf_halfbittime
+ 554  0179 1d0046        	subw	x,#70
+ 555  017c b31d          	cpw	x,L52_rf_low_time
+ 556  017e 2277          	jrugt	L742
+ 557                     ; 264           rf_offset = rf_low_time;
+ 559  0180 be1d          	ldw	x,L52_rf_low_time
+ 561  0182 2059          	jpf	LC003
+ 562                     ; 268           RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 563  0184               L161:
+ 564                     ; 271       else if(FLAG_fall_edge)
+ 566  0184 b616          	ld	a,L31_FLAG_fall_edge
+ 567  0186 2771          	jreq	L131
+ 568                     ; 273         rf_high_time = cap_fall;
+ 570  0188 be9b          	ldw	x,L7_cap_fall
+ 571  018a bf1f          	ldw	L72_rf_high_time,x
+ 572                     ; 274         if(rf_high_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_high_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+ 574  018c 8d240224      	callf	LC008
+ 575  0190 224f          	jrugt	L122
+ 577  0192 8d350235      	callf	LC009
+ 578  0196 2549          	jrult	L122
+ 579                     ; 277           RF_bits++;
+ 581  0198 3c26          	inc	L73_RF_bits
+ 582                     ; 278           if(RF_bits < 8) RF_data <<= 1;
+ 584  019a b626          	ld	a,L73_RF_bits
+ 585  019c a108          	cp	a,#8
+ 586  019e 2402          	jruge	L322
+ 589  01a0 3828          	sll	L34_RF_data
+ 590  01a2               L322:
+ 591                     ; 279           if(RF_bits == 8)
+ 593  01a2 a108          	cp	a,#8
+ 594  01a4 2636          	jrne	L522
+ 595                     ; 282             RcvRFmsg.RFmsgarray[RF_bytes++] = RF_data;
+ 597  01a6 8d110211      	callf	LC007
+ 598  01aa 2609          	jrne	L722
+ 599                     ; 287               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
+ 601  01ac bea0          	ldw	x,_RcvRFmsg
+ 602  01ae a3a55a        	cpw	x,#42330
+ 603  01b1 2702          	jreq	L722
+ 604                     ; 290                 RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 606  01b3 3f29          	clr	L54_RF_rcvState
+ 607  01b5               L722:
+ 608                     ; 293             if(RF_bytes == RFSEND_DATALEN) 
+ 610  01b5 a105          	cp	a,#5
+ 611  01b7 2623          	jrne	L522
+ 612                     ; 295               RFrcvChksum = 0;
+ 614  01b9 3f00          	clr	L33_RFrcvChksum
+ 615                     ; 296               for(i=0;i<RFSEND_DATALEN-1;i++)
+ 617  01bb 4f            	clr	a
+ 618  01bc 6b01          	ld	(OFST+0,sp),a
+ 619  01be               L532:
+ 620                     ; 298                 RFrcvChksum += RcvRFmsg.RFmsgarray[i];
+ 622  01be 5f            	clrw	x
+ 623  01bf 97            	ld	xl,a
+ 624  01c0 b600          	ld	a,L33_RFrcvChksum
+ 625  01c2 eba0          	add	a,(_RcvRFmsg,x)
+ 626  01c4 b700          	ld	L33_RFrcvChksum,a
+ 627                     ; 296               for(i=0;i<RFSEND_DATALEN-1;i++)
+ 629  01c6 0c01          	inc	(OFST+0,sp)
+ 632  01c8 7b01          	ld	a,(OFST+0,sp)
+ 633  01ca a104          	cp	a,#4
+ 634  01cc 25f0          	jrult	L532
+ 635                     ; 300               RFrcvChksum = (u8)(~RFrcvChksum);
+ 637  01ce 3300          	cpl	L33_RFrcvChksum
+ 638                     ; 301               if(RFrcvChksum == RcvRFmsg.RFmsgmember.RFmsgCHKSUM)
+ 640  01d0 b6a4          	ld	a,_RcvRFmsg+4
+ 641  01d2 b100          	cp	a,L33_RFrcvChksum
+ 642  01d4 2604          	jrne	L342
+ 643                     ; 303                 RFbytesReady = TRUE;  // set new RF data available flag
+ 645  01d6               LC006:
+ 647  01d6 35010024      	mov	_RFbytesReady,#1
+ 648  01da               L342:
+ 649                     ; 305               RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 652  01da 3f29          	clr	L54_RF_rcvState
+ 653  01dc               L522:
+ 654                     ; 308           rf_offset = 0;
+ 657  01dc 5f            	clrw	x
+ 658  01dd               LC003:
+ 659  01dd bf21          	ldw	L13_rf_offset,x
+ 661  01df 2018          	jra	L131
+ 662  01e1               L122:
+ 663                     ; 310         else if(rf_high_time <= rf_halfbittime+RF_EDGES_JITTER && rf_high_time >= rf_halfbittime-RF_EDGES_JITTER)
+ 665  01e1 be1b          	ldw	x,L32_rf_halfbittime
+ 666  01e3 1c0046        	addw	x,#70
+ 667  01e6 b31f          	cpw	x,L72_rf_high_time
+ 668  01e8 250d          	jrult	L742
+ 670  01ea be1b          	ldw	x,L32_rf_halfbittime
+ 671  01ec 1d0046        	subw	x,#70
+ 672  01ef b31f          	cpw	x,L72_rf_high_time
+ 673  01f1 2204          	jrugt	L742
+ 674                     ; 312           rf_offset = rf_high_time;
+ 676  01f3 be1f          	ldw	x,L72_rf_high_time
+ 678  01f5 20e6          	jpf	LC003
+ 679  01f7               L742:
+ 680                     ; 316           RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 683  01f7 3f29          	clr	L54_RF_rcvState
+ 684                     ; 321     default: break;
+ 686  01f9               L131:
+ 687                     ; 323   TIM3_ClearITPendingBit(TIM3_IT_CC1);
+ 689  01f9 a602          	ld	a,#2
+ 690  01fb cd0000        	call	_TIM3_ClearITPendingBit
+ 692                     ; 324   TIM3_ClearITPendingBit(TIM3_IT_CC2);
+ 694  01fe a604          	ld	a,#4
+ 695  0200 cd0000        	call	_TIM3_ClearITPendingBit
+ 697                     ; 325 }
+ 700  0203 84            	pop	a
+ 701  0204 85            	popw	x
+ 702  0205 bf00          	ldw	c_y,x
+ 703  0207 320002        	pop	c_y+2
+ 704  020a 85            	popw	x
+ 705  020b bf00          	ldw	c_x,x
+ 706  020d 320002        	pop	c_x+2
+ 707  0210 80            	iret	
+ 708  0211               LC007:
+ 709  0211 b627          	ld	a,L14_RF_bytes
+ 710  0213 3c27          	inc	L14_RF_bytes
+ 711  0215 5f            	clrw	x
+ 712  0216 97            	ld	xl,a
+ 713  0217 b628          	ld	a,L34_RF_data
+ 714  0219 e7a0          	ld	(_RcvRFmsg,x),a
+ 715                     ; 235             RF_bits = 0;
+ 717  021b 3f26          	clr	L73_RF_bits
+ 718                     ; 236             RF_data = 0;
+ 720  021d 3f28          	clr	L34_RF_data
+ 721                     ; 237             if(RF_bytes == 2)
+ 723  021f b627          	ld	a,L14_RF_bytes
+ 724  0221 a102          	cp	a,#2
+ 725  0223 87            	retf	
+ 726  0224               LC008:
+ 727  0224 90be19        	ldw	y,L12_rf_bittime
+ 728  0227 72bb0021      	addw	x,L13_rf_offset
+ 729  022b 72a90046      	addw	y,#70
+ 730  022f 90bf00        	ldw	c_y,y
+ 731  0232 b300          	cpw	x,c_y
+ 732  0234 87            	retf	
+ 733  0235               LC009:
+ 734  0235 90be19        	ldw	y,L12_rf_bittime
+ 735  0238 72a20046      	subw	y,#70
+ 736  023c 90bf00        	ldw	c_y,y
+ 737  023f b300          	cpw	x,c_y
+ 738  0241 87            	retf	
+ 797                     ; 332 INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
+ 797                     ; 333 {
+ 798                     .text:	section	.text,new
+ 799  0000               f_TIM2_UPD_OVF_TRG_BRK_IRQHandler:
+ 801  0000 8a            	push	cc
+ 802  0001 84            	pop	a
+ 803  0002 a4bf          	and	a,#191
+ 804  0004 88            	push	a
+ 805  0005 86            	pop	cc
+ 806  0006 3b0002        	push	c_x+2
+ 807  0009 be00          	ldw	x,c_x
+ 808  000b 89            	pushw	x
+ 809  000c 3b0002        	push	c_y+2
+ 810  000f be00          	ldw	x,c_y
+ 811  0011 89            	pushw	x
+ 814                     ; 337   interrupt_status = 1;
+ 816  0012 3501009f      	mov	L3_interrupt_status,#1
+ 817                     ; 338   if(TIM2_GetITStatus(TIM2_IT_Update))  //1ms
+ 819  0016 a601          	ld	a,#1
+ 820  0018 cd0000        	call	_TIM2_GetITStatus
+ 822  001b 4d            	tnz	a
+ 823  001c 2604acac01ac  	jreq	L362
+ 824                     ; 341     if(cnt_flag_250ms < U16_MAX) cnt_flag_250ms++;
+ 826  0022 be00          	ldw	x,_cnt_flag_250ms
+ 827  0024 a3ffff        	cpw	x,#65535
+ 828  0027 2403          	jruge	L562
+ 831  0029 5c            	incw	x
+ 832  002a bf00          	ldw	_cnt_flag_250ms,x
+ 833  002c               L562:
+ 834                     ; 342     if(cnt_flag_250ms >= CNTVAL_250MS) 
+ 836  002c a300fa        	cpw	x,#250
+ 837  002f 2507          	jrult	L762
+ 838                     ; 344       cnt_flag_250ms = 0;
+ 840  0031 5f            	clrw	x
+ 841  0032 bf00          	ldw	_cnt_flag_250ms,x
+ 842                     ; 345       FLAG_250ms = TRUE;
+ 844  0034 72100000      	bset	_FLAG_250ms
+ 845  0038               L762:
+ 846                     ; 347     if(cnt_flag_500ms < U16_MAX) cnt_flag_500ms++;
+ 848  0038 be02          	ldw	x,_cnt_flag_500ms
+ 849  003a a3ffff        	cpw	x,#65535
+ 850  003d 2403          	jruge	L172
+ 853  003f 5c            	incw	x
+ 854  0040 bf02          	ldw	_cnt_flag_500ms,x
+ 855  0042               L172:
+ 856                     ; 348     if(cnt_flag_500ms >= CNTVAL_500MS) 
+ 858  0042 a301f4        	cpw	x,#500
+ 859  0045 2507          	jrult	L372
+ 860                     ; 350       cnt_flag_500ms = 0;
+ 862  0047 5f            	clrw	x
+ 863  0048 bf02          	ldw	_cnt_flag_500ms,x
+ 864                     ; 351       FLAG_500ms = TRUE;
+ 866  004a 72100001      	bset	_FLAG_500ms
+ 867  004e               L372:
+ 868                     ; 353     if(cnt_flag_1000ms < U16_MAX) cnt_flag_1000ms++;
+ 870  004e be04          	ldw	x,_cnt_flag_1000ms
+ 871  0050 a3ffff        	cpw	x,#65535
+ 872  0053 2403          	jruge	L572
+ 875  0055 5c            	incw	x
+ 876  0056 bf04          	ldw	_cnt_flag_1000ms,x
+ 877  0058               L572:
+ 878                     ; 354     if(cnt_flag_1000ms >= CNTVAL_1000MS) 
+ 880  0058 a303e8        	cpw	x,#1000
+ 881  005b 2507          	jrult	L772
+ 882                     ; 356       cnt_flag_1000ms = 0;
+ 884  005d 5f            	clrw	x
+ 885  005e bf04          	ldw	_cnt_flag_1000ms,x
+ 886                     ; 357       FLAG_1000ms = TRUE;
+ 888  0060 72100002      	bset	_FLAG_1000ms
+ 889  0064               L772:
+ 890                     ; 360     if(!Timeout_istout1)
+ 892  0064 720000000d    	btjt	_Timeout_istout1,L103
+ 893                     ; 362       Timeout_toutcnt1++;
+ 895  0069 be00          	ldw	x,_Timeout_toutcnt1
+ 896  006b 5c            	incw	x
+ 897  006c bf00          	ldw	_Timeout_toutcnt1,x
+ 898                     ; 363       if(Timeout_toutcnt1 >= Timeout_tout1) Timeout_istout1 = TRUE;
+ 900  006e b300          	cpw	x,_Timeout_tout1
+ 901  0070 2504          	jrult	L103
+ 904  0072 72100000      	bset	_Timeout_istout1
+ 905  0076               L103:
+ 906                     ; 365     if(!Timeout_istout2)
+ 908  0076 720000000d    	btjt	_Timeout_istout2,L503
+ 909                     ; 367       Timeout_toutcnt2++;
+ 911  007b be00          	ldw	x,_Timeout_toutcnt2
+ 912  007d 5c            	incw	x
+ 913  007e bf00          	ldw	_Timeout_toutcnt2,x
+ 914                     ; 368       if(Timeout_toutcnt2 >= Timeout_tout2) Timeout_istout2 = TRUE;
+ 916  0080 b300          	cpw	x,_Timeout_tout2
+ 917  0082 2504          	jrult	L503
+ 920  0084 72100000      	bset	_Timeout_istout2
+ 921  0088               L503:
+ 922                     ; 370     if(!Timeout_istout3)
+ 924  0088 720000000d    	btjt	_Timeout_istout3,L113
+ 925                     ; 372       Timeout_toutcnt3++;
+ 927  008d be00          	ldw	x,_Timeout_toutcnt3
+ 928  008f 5c            	incw	x
+ 929  0090 bf00          	ldw	_Timeout_toutcnt3,x
+ 930                     ; 373       if(Timeout_toutcnt3 >= Timeout_tout3) Timeout_istout3 = TRUE;
+ 932  0092 b300          	cpw	x,_Timeout_tout3
+ 933  0094 2504          	jrult	L113
+ 936  0096 72100000      	bset	_Timeout_istout3
+ 937  009a               L113:
+ 938                     ; 376     if(RFrcvTimeoutcnt < 255) RFrcvTimeoutcnt++;
+ 940  009a b625          	ld	a,L53_RFrcvTimeoutcnt
+ 941  009c a1ff          	cp	a,#255
+ 942  009e 2404          	jruge	L513
+ 945  00a0 3c25          	inc	L53_RFrcvTimeoutcnt
+ 946  00a2 b625          	ld	a,L53_RFrcvTimeoutcnt
+ 947  00a4               L513:
+ 948                     ; 377     if(RFrcvTimeoutcnt >= RF_RCVTIMEOUT)
+ 950  00a4 a164          	cp	a,#100
+ 951  00a6 2502          	jrult	L713
+ 952                     ; 379       RF_rcvState = RF_RCVSTATE_WAITSTART;
+ 954  00a8 3f29          	clr	L54_RF_rcvState
+ 955  00aa               L713:
+ 956                     ; 383     if(!BTN1_STATE)
+ 958  00aa 7204500116    	btjt	20481,#2,L123
+ 959                     ; 385       if(btn1_0_cnt < U8_MAX) btn1_0_cnt++;
+ 961  00af b606          	ld	a,_btn1_0_cnt
+ 962  00b1 a1ff          	cp	a,#255
+ 963  00b3 2402          	jruge	L323
+ 966  00b5 3c06          	inc	_btn1_0_cnt
+ 967  00b7               L323:
+ 968                     ; 386       btn1_1_cnt = 0;
+ 970  00b7 3f07          	clr	_btn1_1_cnt
+ 971                     ; 387       if(btn1_0_cnt >= DIG_IN_DEB_TIME)
+ 973  00b9 b606          	ld	a,_btn1_0_cnt
+ 974  00bb a11e          	cp	a,#30
+ 975  00bd 2518          	jrult	L723
+ 976                     ; 389         BTN1_DEB_STATE = BTN_PRESSED;
+ 978  00bf 35010008      	mov	_BTN1_DEB_STATE,#1
+ 979  00c3 2012          	jra	L723
+ 980  00c5               L123:
+ 981                     ; 394       if(btn1_1_cnt < U8_MAX) btn1_1_cnt++;
+ 983  00c5 b607          	ld	a,_btn1_1_cnt
+ 984  00c7 a1ff          	cp	a,#255
+ 985  00c9 2402          	jruge	L133
+ 988  00cb 3c07          	inc	_btn1_1_cnt
+ 989  00cd               L133:
+ 990                     ; 395       btn1_0_cnt = 0;
+ 992  00cd 3f06          	clr	_btn1_0_cnt
+ 993                     ; 396       if(btn1_1_cnt >= DIG_IN_DEB_TIME)
+ 995  00cf b607          	ld	a,_btn1_1_cnt
+ 996  00d1 a11e          	cp	a,#30
+ 997  00d3 2502          	jrult	L723
+ 998                     ; 398         BTN1_DEB_STATE = BTN_DEPRESSED;
+1000  00d5 3f08          	clr	_BTN1_DEB_STATE
+1001  00d7               L723:
+1002                     ; 404     if(BTN1_DEB_STATE == BTN_PRESSED)
+1004  00d7 b608          	ld	a,_BTN1_DEB_STATE
+1005  00d9 4a            	dec	a
+1006  00da 260a          	jrne	L533
+1007                     ; 406       if(BTN1_press_timer < U16_MAX) BTN1_press_timer++;
+1009  00dc be0a          	ldw	x,_BTN1_press_timer
+1010  00de a3ffff        	cpw	x,#65535
+1011  00e1 2403          	jruge	L533
+1014  00e3 5c            	incw	x
+1015  00e4 bf0a          	ldw	_BTN1_press_timer,x
+1016  00e6               L533:
+1017                     ; 409     if(!BTN1_DELAY_FLAG)
+1019  00e6 720000030e    	btjt	_BTN1_DELAY_FLAG,L143
+1020                     ; 411       btn1_delay_cnt++;
+1022  00eb 3c09          	inc	_btn1_delay_cnt
+1023                     ; 412       if(btn1_delay_cnt == BTN_DELAY)
+1025  00ed b609          	ld	a,_btn1_delay_cnt
+1026  00ef a196          	cp	a,#150
+1027  00f1 2606          	jrne	L143
+1028                     ; 414         btn1_delay_cnt = 0;
+1030  00f3 3f09          	clr	_btn1_delay_cnt
+1031                     ; 415         BTN1_DELAY_FLAG = TRUE;
+1033  00f5 72100003      	bset	_BTN1_DELAY_FLAG
+1034  00f9               L143:
+1035                     ; 421     if(flag_blink_redLED)
+1037  00f9 7201000550    	btjf	_flag_blink_redLED,L543
+1038                     ; 423       if(cnt_state_redLED < U16_MAX) cnt_state_redLED++;
+1040  00fe be0d          	ldw	x,_cnt_state_redLED
+1041  0100 a3ffff        	cpw	x,#65535
+1042  0103 2403          	jruge	L743
+1045  0105 5c            	incw	x
+1046  0106 bf0d          	ldw	_cnt_state_redLED,x
+1047  0108               L743:
+1048                     ; 424       if(flag_blink_on_off)
+1050  0108 7201000412    	btjf	_flag_blink_on_off,L153
+1051                     ; 426         if(cnt_state_redLED >= LEDBLINK_ONTIME)
+1053  010d a30032        	cpw	x,#50
+1054  0110 253c          	jrult	L543
+1055                     ; 428           flag_blink_on_off = FALSE;
+1057  0112 72110004      	bres	_flag_blink_on_off
+1058                     ; 429           cnt_state_redLED = 0;
+1060  0116 5f            	clrw	x
+1061  0117 bf0d          	ldw	_cnt_state_redLED,x
+1062                     ; 430           LED_OFF;
+1064  0119 7217500a      	bres	20490,#3
+1067  011d 202b          	jpf	LC010
+1068  011f               L153:
+1069                     ; 435         if(cnt_state_redLED >= LEDBLINK_OFFTIME)
+1071  011f a300c8        	cpw	x,#200
+1072  0122 252a          	jrult	L543
+1073                     ; 437           if(cnt_blink_redLED < U8_MAX) cnt_blink_redLED++;
+1075  0124 b611          	ld	a,_cnt_blink_redLED
+1076  0126 a1ff          	cp	a,#255
+1077  0128 2402          	jruge	L163
+1080  012a 3c11          	inc	_cnt_blink_redLED
+1081  012c               L163:
+1082                     ; 438           flag_blink_on_off = TRUE;
+1084  012c 72100004      	bset	_flag_blink_on_off
+1085                     ; 439           cnt_state_redLED = 0;
+1087  0130 5f            	clrw	x
+1088  0131 bf0d          	ldw	_cnt_state_redLED,x
+1089                     ; 440           if(cnt_blink_redLED >= blink_redLED_times && !flag_blink_unlimited)
+1091  0133 b611          	ld	a,_cnt_blink_redLED
+1092  0135 b113          	cp	a,_blink_redLED_times
+1093  0137 250d          	jrult	L363
+1095  0139 7200000708    	btjt	_flag_blink_unlimited,L363
+1096                     ; 442             flag_blink_redLED = FALSE;
+1098  013e 72110005      	bres	_flag_blink_redLED
+1099                     ; 443             cnt_blink_redLED = 0;
+1101  0142 3f11          	clr	_cnt_blink_redLED
+1103  0144 2008          	jra	L543
+1104  0146               L363:
+1105                     ; 447             LED_RED_ON;
+1107  0146 7216500a      	bset	20490,#3
+1110  014a               LC010:
+1112  014a 7219500a      	bres	20490,#4
+1114  014e               L543:
+1115                     ; 452     if(flag_blink_greenLED)
+1117  014e 7201000654    	btjf	_flag_blink_greenLED,L763
+1118                     ; 454       if(cnt_state_greenLED < U16_MAX) cnt_state_greenLED++;
+1120  0153 be0f          	ldw	x,_cnt_state_greenLED
+1121  0155 a3ffff        	cpw	x,#65535
+1122  0158 2403          	jruge	L173
+1125  015a 5c            	incw	x
+1126  015b bf0f          	ldw	_cnt_state_greenLED,x
+1127  015d               L173:
+1128                     ; 455       if(flag_blink_on_off)
+1130  015d 7201000416    	btjf	_flag_blink_on_off,L373
+1131                     ; 457         if(cnt_state_greenLED >= LEDBLINK_ONTIME)
+1133  0162 a30032        	cpw	x,#50
+1134  0165 2540          	jrult	L763
+1135                     ; 459           flag_blink_on_off = FALSE;
+1137  0167 72110004      	bres	_flag_blink_on_off
+1138                     ; 460           cnt_state_greenLED = 0;
+1140  016b 5f            	clrw	x
+1141  016c bf0f          	ldw	_cnt_state_greenLED,x
+1142                     ; 461           LED_OFF;
+1144  016e 7217500a      	bres	20490,#3
+1147  0172 7219500a      	bres	20490,#4
+1149  0176 202f          	jra	L763
+1150  0178               L373:
+1151                     ; 466         if(cnt_state_greenLED >= LEDBLINK_OFFTIME)
+1153  0178 a300c8        	cpw	x,#200
+1154  017b 252a          	jrult	L763
+1155                     ; 468           if(cnt_blink_greenLED < U8_MAX) cnt_blink_greenLED++;
+1157  017d b612          	ld	a,_cnt_blink_greenLED
+1158  017f a1ff          	cp	a,#255
+1159  0181 2402          	jruge	L304
+1162  0183 3c12          	inc	_cnt_blink_greenLED
+1163  0185               L304:
+1164                     ; 469           flag_blink_on_off = TRUE;
+1166  0185 72100004      	bset	_flag_blink_on_off
+1167                     ; 470           cnt_state_greenLED = 0;
+1169  0189 5f            	clrw	x
+1170  018a bf0f          	ldw	_cnt_state_greenLED,x
+1171                     ; 471           if(cnt_blink_greenLED >= blink_greenLED_times && !flag_blink_unlimited)
+1173  018c b612          	ld	a,_cnt_blink_greenLED
+1174  018e b114          	cp	a,_blink_greenLED_times
+1175  0190 250d          	jrult	L504
+1177  0192 7200000708    	btjt	_flag_blink_unlimited,L504
+1178                     ; 473             flag_blink_greenLED = FALSE;
+1180  0197 72110006      	bres	_flag_blink_greenLED
+1181                     ; 474             cnt_blink_greenLED = 0;
+1183  019b 3f12          	clr	_cnt_blink_greenLED
+1185  019d 2008          	jra	L763
+1186  019f               L504:
+1187                     ; 478             LED_GREEN_ON;
+1189  019f 7217500a      	bres	20490,#3
+1192  01a3 7218500a      	bset	20490,#4
+1194  01a7               L763:
+1195                     ; 484     TIM2_ClearITPendingBit(TIM2_IT_Update);        // clear TIM2 update interrupt flag
+1197  01a7 a601          	ld	a,#1
+1198  01a9 cd0000        	call	_TIM2_ClearITPendingBit
+1200  01ac               L362:
+1201                     ; 486   interrupt_status = 0;
+1203  01ac 3f9f          	clr	L3_interrupt_status
+1204                     ; 487 }
+1207  01ae 85            	popw	x
+1208  01af bf00          	ldw	c_y,x
+1209  01b1 320002        	pop	c_y+2
+1210  01b4 85            	popw	x
+1211  01b5 bf00          	ldw	c_x,x
+1212  01b7 320002        	pop	c_x+2
+1213  01ba 80            	iret	
+1236                     ; 494 INTERRUPT_HANDLER(TIM3_UPD_OVF_TRG_BRK_IRQHandler, 21)
+1236                     ; 495 {
+1237                     .text:	section	.text,new
+1238  0000               f_TIM3_UPD_OVF_TRG_BRK_IRQHandler:
+1242                     ; 499 }
+1245  0000 80            	iret	
+1267                     ; 506 INTERRUPT_HANDLER_TRAP(TRAP_IRQHandler)
+1267                     ; 507 {
+1268                     .text:	section	.text,new
+1269  0000               f_TRAP_IRQHandler:
+1273                     ; 511 }
+1276  0000 80            	iret	
+1298                     ; 518 INTERRUPT_HANDLER(FLASH_IRQHandler,1)
+1298                     ; 519 {
+1299                     .text:	section	.text,new
+1300  0000               f_FLASH_IRQHandler:
+1304                     ; 523 }
+1307  0000 80            	iret	
+1329                     ; 530 INTERRUPT_HANDLER(AWU_IRQHandler,4)
+1329                     ; 531 {
+1330                     .text:	section	.text,new
+1331  0000               f_AWU_IRQHandler:
+1335                     ; 535 }
+1338  0000 80            	iret	
+1360                     ; 542 INTERRUPT_HANDLER(EXTIB_IRQHandler, 6)
+1360                     ; 543 {
+1361                     .text:	section	.text,new
+1362  0000               f_EXTIB_IRQHandler:
+1366                     ; 547 }
+1369  0000 80            	iret	
+1391                     ; 554 INTERRUPT_HANDLER(EXTID_IRQHandler, 7)
+1391                     ; 555 {
+1392                     .text:	section	.text,new
+1393  0000               f_EXTID_IRQHandler:
+1397                     ; 559 }
+1400  0000 80            	iret	
+1422                     ; 566 INTERRUPT_HANDLER(EXTI0_IRQHandler, 8)
+1422                     ; 567 {
+1423                     .text:	section	.text,new
+1424  0000               f_EXTI0_IRQHandler:
+1428                     ; 571 }
+1431  0000 80            	iret	
+1453                     ; 578 INTERRUPT_HANDLER(EXTI1_IRQHandler, 9)
+1453                     ; 579 {
+1454                     .text:	section	.text,new
+1455  0000               f_EXTI1_IRQHandler:
+1459                     ; 583 }
+1462  0000 80            	iret	
+1484                     ; 590 INTERRUPT_HANDLER(EXTI2_IRQHandler, 10)
+1484                     ; 591 {
+1485                     .text:	section	.text,new
+1486  0000               f_EXTI2_IRQHandler:
+1490                     ; 595 }
+1493  0000 80            	iret	
+1515                     ; 602 INTERRUPT_HANDLER(EXTI3_IRQHandler, 11)
+1515                     ; 603 {
+1516                     .text:	section	.text,new
+1517  0000               f_EXTI3_IRQHandler:
+1521                     ; 607 }
+1524  0000 80            	iret	
+1546                     ; 614 INTERRUPT_HANDLER(EXTI4_IRQHandler, 12)
+1546                     ; 615 {
+1547                     .text:	section	.text,new
+1548  0000               f_EXTI4_IRQHandler:
+1552                     ; 619 }
+1555  0000 80            	iret	
+1577                     ; 626 INTERRUPT_HANDLER(EXTI5_IRQHandler, 13)
+1577                     ; 627 {
+1578                     .text:	section	.text,new
+1579  0000               f_EXTI5_IRQHandler:
+1583                     ; 631 }
+1586  0000 80            	iret	
+1608                     ; 638 INTERRUPT_HANDLER(EXTI6_IRQHandler, 14)
+1608                     ; 639 {
+1609                     .text:	section	.text,new
+1610  0000               f_EXTI6_IRQHandler:
+1614                     ; 643 }
+1617  0000 80            	iret	
+1639                     ; 650 INTERRUPT_HANDLER(EXTI7_IRQHandler, 15)
+1639                     ; 651 {
+1640                     .text:	section	.text,new
+1641  0000               f_EXTI7_IRQHandler:
+1645                     ; 655 }
+1648  0000 80            	iret	
+1670                     ; 662 INTERRUPT_HANDLER(COMP_IRQHandler, 18)
+1670                     ; 663 {
+1671                     .text:	section	.text,new
+1672  0000               f_COMP_IRQHandler:
+1676                     ; 667 }
+1679  0000 80            	iret	
+1702                     ; 674 INTERRUPT_HANDLER(TIM2_CAP_IRQHandler, 20)
+1702                     ; 675 {
+1703                     .text:	section	.text,new
+1704  0000               f_TIM2_CAP_IRQHandler:
+1708                     ; 679 }
+1711  0000 80            	iret	
+1734                     ; 686 INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
+1734                     ; 687 {
+1735                     .text:	section	.text,new
+1736  0000               f_TIM4_UPD_OVF_IRQHandler:
+1740                     ; 691 }
+1743  0000 80            	iret	
+1765                     ; 698 INTERRUPT_HANDLER(SPI_IRQHandler, 26)
+1765                     ; 699 {
+1766                     .text:	section	.text,new
+1767  0000               f_SPI_IRQHandler:
+1771                     ; 703 }
+1774  0000 80            	iret	
+1797                     ; 709 INTERRUPT_HANDLER(USART_TX_IRQHandler, 27)
+1797                     ; 710 {
+1798                     .text:	section	.text,new
+1799  0000               f_USART_TX_IRQHandler:
+1803                     ; 714 }
+1806  0000 80            	iret	
+1829                     ; 721 INTERRUPT_HANDLER(USART_RX_IRQHandler, 28)
+1829                     ; 722 {
+1830                     .text:	section	.text,new
+1831  0000               f_USART_RX_IRQHandler:
+1835                     ; 726 }
+1838  0000 80            	iret	
+1860                     ; 734 INTERRUPT_HANDLER(I2C_IRQHandler, 29)
+1860                     ; 735 {
+1861                     .text:	section	.text,new
+1862  0000               f_I2C_IRQHandler:
+1866                     ; 739 }
+1869  0000 80            	iret	
+2396                     	xdef	_FLAG_UART_cmd_rcv
+2397                     	switch	.ubsct
+2398  0000               L33_RFrcvChksum:
+2399  0000 00            	ds.b	1
+2400                     	xdef	_idx
+2401  0001               _rcv_buff:
+2402  0001 000000000000  	ds.b	154
+2403                     	xdef	_rcv_buff
+2404  009b               L7_cap_fall:
+2405  009b 0000          	ds.b	2
+2406  009d               L5_cap_rise:
+2407  009d 0000          	ds.b	2
+2408                     	xdef	_cnt_blink_greenLED
+2409                     	xdef	_cnt_blink_redLED
+2410                     	xdef	_debug
+2411  009f               L3_interrupt_status:
+2412  009f 00            	ds.b	1
+2413                     	xref.b	_Timeout_tout3
+2414                     	xref.b	_Timeout_tout2
+2415                     	xref.b	_Timeout_tout1
+2416                     	xref.b	_Timeout_toutcnt3
+2417                     	xref.b	_Timeout_toutcnt2
+2418                     	xref.b	_Timeout_toutcnt1
+2419                     	xbit	_Timeout_istout3
+2420                     	xbit	_Timeout_istout2
+2421                     	xbit	_Timeout_istout1
+2422                     	xdef	_btn1_delay_cnt
+2423                     	xdef	_btn1_1_cnt
+2424                     	xdef	_btn1_0_cnt
+2425                     	xdef	_cnt_flag_1000ms
+2426                     	xdef	_cnt_flag_500ms
+2427                     	xdef	_cnt_flag_250ms
+2428                     	xdef	f_I2C_IRQHandler
+2429                     	xdef	f_USART_RX_IRQHandler
+2430                     	xdef	f_USART_TX_IRQHandler
+2431                     	xdef	f_SPI_IRQHandler
+2432                     	xdef	f_TIM4_UPD_OVF_IRQHandler
+2433                     	xdef	f_TIM3_CAP_IRQHandler
+2434                     	xdef	f_TIM3_UPD_OVF_TRG_BRK_IRQHandler
+2435                     	xdef	f_TIM2_CAP_IRQHandler
+2436                     	xdef	f_TIM2_UPD_OVF_TRG_BRK_IRQHandler
+2437                     	xdef	f_COMP_IRQHandler
+2438                     	xdef	f_EXTI7_IRQHandler
+2439                     	xdef	f_EXTI6_IRQHandler
+2440                     	xdef	f_EXTI5_IRQHandler
+2441                     	xdef	f_EXTI4_IRQHandler
+2442                     	xdef	f_EXTI3_IRQHandler
+2443                     	xdef	f_EXTI2_IRQHandler
+2444                     	xdef	f_EXTI1_IRQHandler
+2445                     	xdef	f_EXTI0_IRQHandler
+2446                     	xdef	f_EXTID_IRQHandler
+2447                     	xdef	f_EXTIB_IRQHandler
+2448                     	xdef	f_AWU_IRQHandler
+2449                     	xdef	f_FLASH_IRQHandler
+2450                     	xdef	f_TRAP_IRQHandler
+2451                     	xdef	f_NonHandledInterrupt
+2452                     	xdef	_RFbytesReady
+2453  00a0               _RcvRFmsg:
+2454  00a0 0000000000    	ds.b	5
+2455                     	xdef	_RcvRFmsg
+2456                     	xdef	_flag_blink_unlimited
+2457                     	xdef	_flag_blink_greenLED
+2458                     	xdef	_flag_blink_redLED
+2459                     	xdef	_flag_blink_on_off
+2460                     	xdef	_cnt_state_greenLED
+2461                     	xdef	_cnt_state_redLED
+2462                     	xdef	_blink_greenLED_times
+2463                     	xdef	_blink_redLED_times
+2464                     	xdef	_FLAG_1000ms
+2465                     	xdef	_FLAG_500ms
+2466                     	xdef	_FLAG_250ms
+2467                     	xdef	_BTN1_press_timer
+2468                     	xdef	_BTN1_DELAY_FLAG
+2469                     	xdef	_BTN1_DEB_STATE
+2470                     	xref	_TIM3_ClearITPendingBit
+2471                     	xref	_TIM3_GetITStatus
+2472                     	xref	_TIM3_GetCapture2
+2473                     	xref	_TIM3_GetCapture1
+2474                     	xref	_TIM2_ClearITPendingBit
+2475                     	xref	_TIM2_GetITStatus
+2476                     	xref.b	c_x
+2477                     	xref.b	c_y
+2497                     	end

@@ -2,7 +2,7 @@
 #include "rf_send.h"
 #include "delay.h"
 
-#define RFSYNCVAL (u16)/*0x81B3*/0x0000
+#define RFSYNCVAL (u16)/*0x81B3*/0xA55A
 static RFmsg_t RFmsg;
 static u8 chksum;        
 

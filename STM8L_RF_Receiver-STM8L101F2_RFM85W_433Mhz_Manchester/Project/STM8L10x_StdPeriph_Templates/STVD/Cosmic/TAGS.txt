@@ -754,7 +754,7 @@ INTERRUPT_HANDLER	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1349;"	macro
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1354;"	macro
 INTERRUPT_HANDLER_TRAP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1363;"	macro
-INTERRUPT_HANDLER_TRAP	..\..\stm8l10x_it.c	339;"	function
+INTERRUPT_HANDLER_TRAP	..\..\stm8l10x_it.c	359;"	function
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	90;"	macro
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	92;"	macro
 IN_RAM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	94;"	macro
@@ -2265,7 +2265,7 @@ flash_erase_timing_test	..\..\main.c	101;"	variable	file:
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1321;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1331;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1342;"	macro
-idx	..\..\stm8l10x_it.c	100;"	variable	file:
+idx	..\..\stm8l10x_it.c	100;"	variable
 idx_temp2	..\..\stm8l10x_it.c	109;"	variable	file:
 init_delay	..\..\main.c	100;"	variable	file:
 int16_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	132;"	typedef
@@ -2282,7 +2282,7 @@ nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1317;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1327;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1338;"	macro
 program_status	..\..\main.c	95;"	variable	file:
-rcv_buff	..\..\stm8l10x_it.c	99;"	variable	file:
+rcv_buff	..\..\stm8l10x_it.c	99;"	variable
 rf_bittime	..\..\stm8l10x_it.c	94;"	variable	file:
 rf_halfbittime	..\..\stm8l10x_it.c	95;"	variable	file:
 rf_high_time	..\..\stm8l10x_it.c	97;"	variable	file:
