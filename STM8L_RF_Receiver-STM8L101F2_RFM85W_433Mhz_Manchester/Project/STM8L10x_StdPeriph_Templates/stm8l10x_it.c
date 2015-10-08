@@ -83,17 +83,19 @@ extern _Bool flag_blink_redLED;
 extern _Bool flag_blink_greenLED;
 
 // ===== RF Receive =====
-#define RF_EDGES_JITTER (u16)70
 #define RF_RCVTIMEOUT   (u8)100
 #define RFSYNCVAL       (u16)/*0x81B3*/0xA55A
 #define RF_REC_LEN      (u8)77
+#define RF_STARTTIME    (u16)1000   // 1000us
+#define RF_DEFAULTBITTIME (u16)500  // 500us
+
 static u16 cap_rise, cap_fall;
 static u8  FLAG_rise_edge = FALSE;
 static u8  FLAG_fall_edge = FALSE;
 static u8  FLAG_CC_Error = FALSE;
-static u8  FLAG_start_found = FALSE;
-static u16 rf_bittime = 0;
-static u16 rf_halfbittime = 0;
+static u16 rf_bittime = RF_DEFAULTBITTIME;      
+static u16 rf_halfbittime = (RF_DEFAULTBITTIME/2);
+static u16 rf_edges_jitter = (RF_DEFAULTBITTIME/4);
 static u16 rf_low_time = 0;
 static u16 rf_high_time = 0;
 static u16 rf_offset = 0;
@@ -110,6 +112,11 @@ typedef enum {
           RF_RCVSTATE_WAITSTART = 0,
           RF_RCVSTATE_RECBITS   = 1
 } RF_rcvState_t;
+typedef enum {
+          RF_WAITSTART_WAITSTARTPULSE = 2,
+          RF_WAITSTART_WAITNEXTEDGE   = 3
+} RF_waitstart_substate_t;
+RF_waitstart_substate_t RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
 static RF_rcvState_t RF_rcvState = RF_RCVSTATE_WAITSTART;
 _Bool FLAG_UART_cmd_rcv = FALSE;
 //static volatile u8 test_cnt = 0;
@@ -167,44 +174,52 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
   {
     case RF_RCVSTATE_WAITSTART:
     {
-      if(FLAG_fall_edge)
+      switch(RF_waitstart_substate)
       {
-        if(cap_fall >= 500 - RF_EDGES_JITTER && cap_fall <= 500 + RF_EDGES_JITTER)
+        case RF_WAITSTART_WAITSTARTPULSE:
         {
-          rf_bittime = cap_fall;
-          rf_halfbittime = rf_bittime >> 1;
-          RF_bits = 0;
-          RF_bytes = 0;
-          RF_data = 0;
-          if(idx < RF_REC_LEN)
-          rcv_buff[0] = cap_fall;
-          FLAG_start_found = TRUE;
+          if(FLAG_fall_edge)
+          {
+            if(cap_fall <= 500+rf_edges_jitter && cap_fall >= 500-rf_edges_jitter)
+            {
+              rf_bittime = cap_fall;
+              rf_halfbittime = rf_bittime >> 1;      // half of bit time
+              rf_edges_jitter = rf_halfbittime >> 1; // half of half bit time
+              RF_bits = 0;
+              RF_bytes = 0;
+              RF_data = 0;
+              RF_waitstart_substate = RF_WAITSTART_WAITNEXTEDGE;
+              if(idx < RF_REC_LEN)
+              rcv_buff[0] = cap_fall;
+            }
+          }
+          break;
         }
-      }
-      if(FLAG_rise_edge && FLAG_start_found)
-      {
-        rf_low_time = cap_rise-cap_fall;
-        if(rf_low_time <= rf_bittime+RF_EDGES_JITTER && rf_low_time >= rf_bittime-RF_EDGES_JITTER)
+        case RF_WAITSTART_WAITNEXTEDGE:
         {
-          //found "1" bit
-          RF_data |= 0x01;
-          RF_bits++;
-          RF_data <<= 1;
-          idx = 2;
-          rcv_buff[1] = rf_low_time;
-          RF_rcvState = RF_RCVSTATE_RECBITS;
+          if(FLAG_rise_edge)
+          {
+            rf_low_time = cap_rise-cap_fall;
+            if(rf_low_time <= rf_bittime+rf_edges_jitter && rf_low_time >= rf_bittime-rf_edges_jitter)
+            {
+              //found "1" bit
+              RF_data |= 0x01;
+              RF_bits++;
+              RF_data <<= 1;
+              idx = 2;
+              rcv_buff[1] = rf_low_time;
+              RF_rcvState = RF_RCVSTATE_RECBITS;
+            }
+            else if(rf_low_time <= rf_halfbittime+rf_edges_jitter && rf_low_time >= rf_halfbittime-rf_edges_jitter)
+            {
+              rf_offset = rf_low_time;
+              idx = 2;
+              RF_rcvState = RF_RCVSTATE_RECBITS;
+            }
+          }
+          break;
         }
-        else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
-        {
-          rf_offset = rf_low_time;
-          idx = 2;
-          RF_rcvState = RF_RCVSTATE_RECBITS;
-        }
-        else 
-        {
-          RF_rcvState = RF_RCVSTATE_WAITSTART;
-        }
-        FLAG_start_found = FALSE;
+        default: break;
       }
       break;
     }
@@ -222,8 +237,11 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
       if(FLAG_rise_edge)
       {
         rf_low_time = cap_rise-cap_fall;
-        if(rf_low_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_low_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+        if(rf_low_time+rf_offset <= rf_bittime+rf_edges_jitter && rf_low_time+rf_offset >= rf_bittime-rf_edges_jitter)
         {
+          rf_bittime = ((rf_low_time+rf_offset) + rf_bittime) >> 1; // new bit time is arithmetic mean between old bit time and new bit time
+          rf_halfbittime = rf_bittime >> 1;                         // half of bit time
+          rf_edges_jitter = rf_halfbittime >> 1;                    // half of half bit time
           //found "1" bit
           RF_data |= 0x01;
           RF_bits++;
@@ -239,6 +257,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
               {
                 /* not the expected package */
+                RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
                 RF_rcvState = RF_RCVSTATE_WAITSTART;
               }
             }
@@ -254,25 +273,30 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               {
                 RFbytesReady = TRUE;  // set new RF data available flag
               }
+              RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
               RF_rcvState = RF_RCVSTATE_WAITSTART;
             }
           }
           rf_offset = 0;
         }
-        else if(rf_low_time <= rf_halfbittime+RF_EDGES_JITTER && rf_low_time >= rf_halfbittime-RF_EDGES_JITTER)
+        else if(rf_low_time <= rf_halfbittime+rf_edges_jitter && rf_low_time >= rf_halfbittime-rf_edges_jitter)
         {
           rf_offset = rf_low_time;
         }
-        else 
+        else
         {
+          RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
           RF_rcvState = RF_RCVSTATE_WAITSTART;
         }
       }
       else if(FLAG_fall_edge)
       {
         rf_high_time = cap_fall;
-        if(rf_high_time+rf_offset <= rf_bittime+RF_EDGES_JITTER && rf_high_time+rf_offset >= rf_bittime-RF_EDGES_JITTER)
+        if(rf_high_time+rf_offset <= rf_bittime+rf_edges_jitter && rf_high_time+rf_offset >= rf_bittime-rf_edges_jitter)
         {
+          rf_bittime = ((rf_high_time+rf_offset) + rf_bittime) >> 1; // new bit time is arithmetic mean between old bit time and new bit time
+          rf_halfbittime = rf_bittime >> 1;                          // half of bit time
+          rf_edges_jitter = rf_halfbittime >> 1;                     // half of half bit time
           //found "0" bit
           RF_bits++;
           if(RF_bits < 8) RF_data <<= 1;
@@ -287,6 +311,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               if(RcvRFmsg.RFmsgmember.RFsyncValue != RFSYNCVAL)
               {
                 /* not the expected package */
+                RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
                 RF_rcvState = RF_RCVSTATE_WAITSTART;
               }
             }
@@ -302,17 +327,27 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               {
                 RFbytesReady = TRUE;  // set new RF data available flag
               }
+              RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
               RF_rcvState = RF_RCVSTATE_WAITSTART;
             }
           }
           rf_offset = 0;
         }
-        else if(rf_high_time <= rf_halfbittime+RF_EDGES_JITTER && rf_high_time >= rf_halfbittime-RF_EDGES_JITTER)
+        else if(rf_high_time <= rf_halfbittime+rf_edges_jitter && rf_high_time >= rf_halfbittime-rf_edges_jitter)
         {
           rf_offset = rf_high_time;
         }
-        else
+        else if(rf_high_time <= RF_STARTTIME+rf_edges_jitter && rf_high_time >= RF_STARTTIME-rf_edges_jitter)
         {
+          rf_bittime = cap_fall >> 1;            // start time is twice bit time so we have to divide by 2
+          rf_halfbittime = rf_bittime >> 1;      // half of bit time
+          rf_edges_jitter = rf_halfbittime >> 1; // half of half bit time
+          RF_bits = 0;
+          RF_bytes = 0;
+          RF_data = 0;
+          if(idx < RF_REC_LEN)
+          rcv_buff[0] = cap_fall;
+          RF_waitstart_substate = RF_WAITSTART_WAITNEXTEDGE;
           RF_rcvState = RF_RCVSTATE_WAITSTART;
         }
       }
@@ -376,6 +411,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
     if(RFrcvTimeoutcnt < 255) RFrcvTimeoutcnt++;
     if(RFrcvTimeoutcnt >= RF_RCVTIMEOUT)
     {
+      RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
       RF_rcvState = RF_RCVSTATE_WAITSTART;
     }
     /* ========== DEBOUNCE INPUTS ========== 1MS */
