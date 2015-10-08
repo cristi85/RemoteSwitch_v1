@@ -111,98 +111,103 @@
  274  00af               L741:
  275                     ; 61   while(!(TIM4->SR1 & TIM4_IT_Update));
  277  00af 720152e5fb    	btjf	21221,#0,L741
- 278                     ; 62   RFM_DATA(0);
- 280  00b4 72135005      	bres	20485,#1
- 281                     ; 63   TIM4->ARR = 125;
- 283  00b8 357d52e9      	mov	21225,#125
- 284                     ; 64   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 286  00bc 721152e5      	bres	21221,#0
- 288  00c0               L551:
- 289                     ; 65   while(!(TIM4->SR1 & TIM4_IT_Update));
- 291  00c0 720152e5fb    	btjf	21221,#0,L551
+ 278                     ; 62   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 280  00b4 721152e5      	bres	21221,#0
+ 282  00b8               L551:
+ 283                     ; 63   while(!(TIM4->SR1 & TIM4_IT_Update));
+ 285  00b8 720152e5fb    	btjf	21221,#0,L551
+ 286                     ; 64   RFM_DATA(0);
+ 288  00bd 72135005      	bres	20485,#1
+ 289                     ; 65   TIM4->ARR = 125;
+ 291  00c1 357d52e9      	mov	21225,#125
  292                     ; 66   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
  294  00c5 721152e5      	bres	21221,#0
- 295                     ; 69   for(i=0; i<RFSEND_DATALEN; i++)
- 297  00c9 0f03          	clr	(OFST+0,sp)
- 298  00cb               L161:
- 299                     ; 71     mask = 0x80;
- 301  00cb a680          	ld	a,#128
- 302  00cd 6b02          	ld	(OFST-1,sp),a
- 303                     ; 72     for(j=0; j<8; j++)
- 305  00cf 0f01          	clr	(OFST-2,sp)
- 306  00d1               L761:
- 307                     ; 74       if((RFmsg.RFmsgarray[i] & mask))
- 309  00d1 7b03          	ld	a,(OFST+0,sp)
- 310  00d3 5f            	clrw	x
- 311  00d4 97            	ld	xl,a
- 312  00d5 e601          	ld	a,(L3_RFmsg,x)
- 313  00d7 1502          	bcp	a,(OFST-1,sp)
- 314  00d9 2733          	jreq	L571
- 315                     ; 77         RFM_DATA(0);
- 317  00db 72135005      	bres	20485,#1
- 318                     ; 78         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 320  00df 721152e5      	bres	21221,#0
- 322  00e3               L102:
- 323                     ; 79         while(!(TIM4->SR1 & TIM4_IT_Update));
- 325  00e3 720152e5fb    	btjf	21221,#0,L102
- 326                     ; 80         RFM_DATA(1);
- 328  00e8 72125005      	bset	20485,#1
- 329                     ; 81         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 331  00ec 721152e5      	bres	21221,#0
- 333  00f0               L702:
- 334                     ; 82         while(!(TIM4->SR1 & TIM4_IT_Update));
- 336  00f0 720152e5fb    	btjf	21221,#0,L702
- 338  00f5               L312:
- 339                     ; 94       mask >>= 1;
- 341  00f5 0402          	srl	(OFST-1,sp)
- 342                     ; 72     for(j=0; j<8; j++)
- 344  00f7 0c01          	inc	(OFST-2,sp)
- 347  00f9 7b01          	ld	a,(OFST-2,sp)
- 348  00fb a108          	cp	a,#8
- 349  00fd 25d2          	jrult	L761
- 350                     ; 69   for(i=0; i<RFSEND_DATALEN; i++)
- 352  00ff 0c03          	inc	(OFST+0,sp)
- 355  0101 7b03          	ld	a,(OFST+0,sp)
- 356  0103 a105          	cp	a,#5
- 357  0105 25c4          	jrult	L161
- 358                     ; 97   if(RFM_DATA_STATE)
- 360  0107 720350062b    	btjf	20486,#1,L132
- 362  010c 201c          	jra	L532
- 363  010e               L571:
- 364                     ; 87         RFM_DATA(1);
- 366  010e 72125005      	bset	20485,#1
- 367                     ; 88         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 369  0112 721152e5      	bres	21221,#0
- 371  0116               L712:
- 372                     ; 89         while(!(TIM4->SR1 & TIM4_IT_Update));
- 374  0116 720152e5fb    	btjf	21221,#0,L712
- 375                     ; 90         RFM_DATA(0);
- 377  011b 72135005      	bres	20485,#1
- 378                     ; 91         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 380  011f 721152e5      	bres	21221,#0
- 382  0123               L522:
- 383                     ; 92         while(!(TIM4->SR1 & TIM4_IT_Update));
- 385  0123 720152e5fb    	btjf	21221,#0,L522
- 386  0128 20cb          	jra	L312
- 387  012a               L532:
- 388                     ; 99     while(!(TIM4->SR1 & TIM4_IT_Update));
- 390  012a 720152e5fb    	btjf	21221,#0,L532
- 391                     ; 100     RFM_DATA(0);
- 393  012f 72135005      	bres	20485,#1
- 394                     ; 101     TIM4->SR1 &= (u8)(~TIM4_IT_Update);
- 396  0133 721152e5      	bres	21221,#0
- 397  0137               L132:
- 398                     ; 103   RFM_DATA(0);
- 400  0137 72135005      	bres	20485,#1
- 401                     ; 104 }
- 404  013b 5b03          	addw	sp,#3
- 405  013d 81            	ret	
- 501                     	switch	.ubsct
- 502  0000               L5_chksum:
- 503  0000 00            	ds.b	1
- 504  0001               L3_RFmsg:
- 505  0001 0000000000    	ds.b	5
- 506                     	xdef	_RF_Send
- 507                     	xref	_TIM4_TimeBaseInit
- 508                     	xref	_CLK_PeripheralClockConfig
- 528                     	end
+ 296  00c9               L361:
+ 297                     ; 67   while(!(TIM4->SR1 & TIM4_IT_Update));
+ 299  00c9 720152e5fb    	btjf	21221,#0,L361
+ 300                     ; 68   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 302  00ce 721152e5      	bres	21221,#0
+ 303                     ; 71   for(i=0; i<RFSEND_DATALEN; i++)
+ 305  00d2 0f03          	clr	(OFST+0,sp)
+ 306  00d4               L761:
+ 307                     ; 73     mask = 0x80;
+ 309  00d4 a680          	ld	a,#128
+ 310  00d6 6b02          	ld	(OFST-1,sp),a
+ 311                     ; 74     for(j=0; j<8; j++)
+ 313  00d8 0f01          	clr	(OFST-2,sp)
+ 314  00da               L571:
+ 315                     ; 76       if((RFmsg.RFmsgarray[i] & mask))
+ 317  00da 7b03          	ld	a,(OFST+0,sp)
+ 318  00dc 5f            	clrw	x
+ 319  00dd 97            	ld	xl,a
+ 320  00de e601          	ld	a,(L3_RFmsg,x)
+ 321  00e0 1502          	bcp	a,(OFST-1,sp)
+ 322  00e2 2733          	jreq	L302
+ 323                     ; 79         RFM_DATA(0);
+ 325  00e4 72135005      	bres	20485,#1
+ 326                     ; 80         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 328  00e8 721152e5      	bres	21221,#0
+ 330  00ec               L702:
+ 331                     ; 81         while(!(TIM4->SR1 & TIM4_IT_Update));
+ 333  00ec 720152e5fb    	btjf	21221,#0,L702
+ 334                     ; 82         RFM_DATA(1);
+ 336  00f1 72125005      	bset	20485,#1
+ 337                     ; 83         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 339  00f5 721152e5      	bres	21221,#0
+ 341  00f9               L512:
+ 342                     ; 84         while(!(TIM4->SR1 & TIM4_IT_Update));
+ 344  00f9 720152e5fb    	btjf	21221,#0,L512
+ 346  00fe               L122:
+ 347                     ; 96       mask >>= 1;
+ 349  00fe 0402          	srl	(OFST-1,sp)
+ 350                     ; 74     for(j=0; j<8; j++)
+ 352  0100 0c01          	inc	(OFST-2,sp)
+ 355  0102 7b01          	ld	a,(OFST-2,sp)
+ 356  0104 a108          	cp	a,#8
+ 357  0106 25d2          	jrult	L571
+ 358                     ; 71   for(i=0; i<RFSEND_DATALEN; i++)
+ 360  0108 0c03          	inc	(OFST+0,sp)
+ 363  010a 7b03          	ld	a,(OFST+0,sp)
+ 364  010c a105          	cp	a,#5
+ 365  010e 25c4          	jrult	L761
+ 366                     ; 99   if(RFM_DATA_STATE)
+ 368  0110 720350062b    	btjf	20486,#1,L732
+ 370  0115 201c          	jra	L342
+ 371  0117               L302:
+ 372                     ; 89         RFM_DATA(1);
+ 374  0117 72125005      	bset	20485,#1
+ 375                     ; 90         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 377  011b 721152e5      	bres	21221,#0
+ 379  011f               L522:
+ 380                     ; 91         while(!(TIM4->SR1 & TIM4_IT_Update));
+ 382  011f 720152e5fb    	btjf	21221,#0,L522
+ 383                     ; 92         RFM_DATA(0);
+ 385  0124 72135005      	bres	20485,#1
+ 386                     ; 93         TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 388  0128 721152e5      	bres	21221,#0
+ 390  012c               L332:
+ 391                     ; 94         while(!(TIM4->SR1 & TIM4_IT_Update));
+ 393  012c 720152e5fb    	btjf	21221,#0,L332
+ 394  0131 20cb          	jra	L122
+ 395  0133               L342:
+ 396                     ; 101     while(!(TIM4->SR1 & TIM4_IT_Update));
+ 398  0133 720152e5fb    	btjf	21221,#0,L342
+ 399                     ; 102     RFM_DATA(0);
+ 401  0138 72135005      	bres	20485,#1
+ 402                     ; 103     TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+ 404  013c 721152e5      	bres	21221,#0
+ 405  0140               L732:
+ 406                     ; 105   RFM_DATA(0);
+ 408  0140 72135005      	bres	20485,#1
+ 409                     ; 106 }
+ 412  0144 5b03          	addw	sp,#3
+ 413  0146 81            	ret	
+ 509                     	switch	.ubsct
+ 510  0000               L5_chksum:
+ 511  0000 00            	ds.b	1
+ 512  0001               L3_RFmsg:
+ 513  0001 0000000000    	ds.b	5
+ 514                     	xdef	_RF_Send
+ 515                     	xref	_TIM4_TimeBaseInit
+ 516                     	xref	_CLK_PeripheralClockConfig
+ 536                     	end

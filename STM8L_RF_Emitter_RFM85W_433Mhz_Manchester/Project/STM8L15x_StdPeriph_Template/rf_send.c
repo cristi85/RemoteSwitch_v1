@@ -59,6 +59,8 @@ void RF_Send(RF_Cmd_TypeDef RFcmd)
   RFM_DATA(1);
   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
   while(!(TIM4->SR1 & TIM4_IT_Update));
+  TIM4->SR1 &= (u8)(~TIM4_IT_Update);
+  while(!(TIM4->SR1 & TIM4_IT_Update));
   RFM_DATA(0);
   TIM4->ARR = 125;
   TIM4->SR1 &= (u8)(~TIM4_IT_Update);
