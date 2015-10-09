@@ -36,8 +36,14 @@
     // DATA - digital INPT
     #define RFM_DATA_PORT   GPIOB 
     #define RFM_DATA_PIN    GPIO_Pin_1
-    
     #define RFM_DATA_STATE ((u16)(RFM_DATA_PORT->IDR & RFM_DATA_PIN) != (u16)0 ? (u8)1 : (u8)0)
+    
+    /* ======DEBUG PIN====== */
+    // DEBUG PIN - digital OUTPUT
+    #define DEBUG_PIN_PORT  GPIOB 
+    #define DEBUG_PIN_PIN   GPIO_Pin_4
+    #define DEBUG_PIN_ON    (DEBUG_PIN_PORT->ODR |= DEBUG_PIN_PIN)
+    #define DEBUG_PIN_OFF   (DEBUG_PIN_PORT->ODR &= (u8)(~DEBUG_PIN_PIN))
     
     /* H bridge */
     #define PMOS_L_PORT   GPIOD
