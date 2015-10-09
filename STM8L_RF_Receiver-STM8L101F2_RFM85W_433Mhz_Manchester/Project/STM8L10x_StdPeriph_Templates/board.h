@@ -41,7 +41,7 @@
     /* ======DEBUG PIN====== */
     // DEBUG PIN - digital OUTPUT
     #define DEBUG_PIN_PORT  GPIOB 
-    #define DEBUG_PIN_PIN   GPIO_Pin_4
+    #define DEBUG_PIN_PIN   GPIO_Pin_3
     #define DEBUG_PIN_ON    (DEBUG_PIN_PORT->ODR |= DEBUG_PIN_PIN)
     #define DEBUG_PIN_OFF   (DEBUG_PIN_PORT->ODR &= (u8)(~DEBUG_PIN_PIN))
     

@@ -83,19 +83,24 @@ extern _Bool flag_blink_redLED;
 extern _Bool flag_blink_greenLED;
 
 // ===== RF Receive =====
-#define RF_RCVTIMEOUT   (u8)100
-#define RFSYNCVAL       (u16)/*0x81B3*/0xA55A
-#define RF_REC_LEN      (u8)77
-#define RF_STARTTIME    (u16)1000   // 1000us
-#define RF_DEFAULTBITTIME (u16)500  // 500us
+#define RF_RCVTIMEOUT     (u8)100     // 100ms
+#define RFSYNCVAL         (u16)0xA55A
+#define RF_REC_LEN        (u8)77
+
+// START pulse is accepted between 200us and 8ms
+// bit time will be between 100us and 4ms
+// baudrate will be between 10kbps and 250bps
+#define RF_STARTTIME_LOW  (u16)200   // 200us 
+#define RF_STARTTIME_HIGH (u16)8000  // 8ms
+//#define RF_DEFAULTBITTIME (u16)500   // 500us
 
 static u16 cap_rise, cap_fall;
 static u8  FLAG_rise_edge = FALSE;
 static u8  FLAG_fall_edge = FALSE;
 static u8  FLAG_CC_Error = FALSE;
-static u16 rf_bittime = RF_DEFAULTBITTIME;      
-static u16 rf_halfbittime = (RF_DEFAULTBITTIME/2);
-static u16 rf_edges_jitter = (RF_DEFAULTBITTIME/4);
+static u16 rf_bittime = 0;      
+static u16 rf_halfbittime = 0;
+static u16 rf_edges_jitter = 0;
 static u16 rf_low_time = 0;
 static u16 rf_high_time = 0;
 static u16 rf_offset = 0;
@@ -181,17 +186,17 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
           DEBUG_PIN_ON;
           if(FLAG_fall_edge)
           {
-            if(cap_fall <= 500+rf_edges_jitter && cap_fall >= 500-rf_edges_jitter)
+            if(cap_fall <= RF_STARTTIME_HIGH && cap_fall >= RF_STARTTIME_LOW)
             {
-              rf_bittime = cap_fall;
+              // if a start pulse is found
+              rf_bittime = cap_fall >> 1;            // bit time is half of start time
               rf_halfbittime = rf_bittime >> 1;      // half of bit time
-              rf_edges_jitter = rf_halfbittime >> 1; // half of half bit time
+              rf_edges_jitter = rf_halfbittime >> 1; // maximum accepted edges jitter is a quarter bit time
               RF_bits = 0;
               RF_bytes = 0;
               RF_data = 0;
               RF_waitstart_substate = RF_WAITSTART_WAITNEXTEDGE;
-              if(idx < RF_REC_LEN)
-              rcv_buff[0] = cap_fall;
+              if(idx < RF_REC_LEN) rcv_buff[0] = cap_fall;
             }
           }
           break;
@@ -208,6 +213,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               RF_data |= 0x01;
               RF_bits++;
               RF_data <<= 1;
+              rf_offset = 0;
               idx = 2;
               rcv_buff[1] = rf_low_time;
               RF_rcvState = RF_RCVSTATE_RECBITS;
@@ -217,6 +223,11 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
               rf_offset = rf_low_time;
               idx = 2;
               RF_rcvState = RF_RCVSTATE_RECBITS;
+            }
+            else
+            {
+              // invalid edge timing after start pulse, search for start pulse again
+              RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
             }
           }
           break;
@@ -340,11 +351,12 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
         {
           rf_offset = rf_high_time;
         }
-        else if(rf_high_time <= RF_STARTTIME+rf_edges_jitter && rf_high_time >= RF_STARTTIME-rf_edges_jitter)
+        else if(rf_high_time <= RF_STARTTIME_HIGH && rf_high_time >= RF_STARTTIME_LOW)
         {
-          rf_bittime = cap_fall >> 1;            // start time is twice bit time so we have to divide by 2
+          // found a start pulse, reset decoding algorithm
+          rf_bittime = cap_fall >> 1;            // bit time is half of start time
           rf_halfbittime = rf_bittime >> 1;      // half of bit time
-          rf_edges_jitter = rf_halfbittime >> 1; // half of half bit time
+          rf_edges_jitter = rf_halfbittime >> 1; // maximum accepted edges jitter is a quarter bit time
           RF_bits = 0;
           RF_bytes = 0;
           RF_data = 0;
@@ -367,7 +379,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
   * @param  None
   * @retval None
   */
-INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
+INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)  // every 1ms
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.

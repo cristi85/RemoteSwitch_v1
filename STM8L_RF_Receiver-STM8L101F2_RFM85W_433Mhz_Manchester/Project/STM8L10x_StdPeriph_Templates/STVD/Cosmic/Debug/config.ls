@@ -97,43 +97,49 @@
  185  0093 ae5005        	ldw	x,#20485
  186  0096 cd0000        	call	_GPIO_Init
  188  0099 85            	popw	x
- 189                     ; 72   GPIO_Init(PMOS_L_PORT,  PMOS_L_PIN,    GPIO_Mode_Out_PP_High_Fast);
- 191  009a 4bf0          	push	#240
- 192  009c 4b01          	push	#1
- 193  009e ae500f        	ldw	x,#20495
+ 189                     ; 72   GPIO_Init(DEBUG_PIN_PORT, DEBUG_PIN_PIN, GPIO_Mode_Out_PP_Low_Fast);
+ 191  009a 4be0          	push	#224
+ 192  009c 4b08          	push	#8
+ 193  009e ae5005        	ldw	x,#20485
  194  00a1 cd0000        	call	_GPIO_Init
  196  00a4 85            	popw	x
- 197                     ; 73   GPIO_Init(PMOS_R_PORT,  PMOS_R_PIN,    GPIO_Mode_Out_PP_High_Fast);
+ 197                     ; 75   GPIO_Init(PMOS_L_PORT,  PMOS_L_PIN,    GPIO_Mode_Out_PP_High_Fast);
  199  00a5 4bf0          	push	#240
- 200  00a7 4b04          	push	#4
- 201  00a9 ae5005        	ldw	x,#20485
+ 200  00a7 4b01          	push	#1
+ 201  00a9 ae500f        	ldw	x,#20495
  202  00ac cd0000        	call	_GPIO_Init
  204  00af 85            	popw	x
- 205                     ; 74   GPIO_Init(NMOS_L_PORT,  NMOS_L_PIN,    GPIO_Mode_Out_PP_Low_Fast);
- 207  00b0 4be0          	push	#224
- 208  00b2 4b01          	push	#1
+ 205                     ; 76   GPIO_Init(PMOS_R_PORT,  PMOS_R_PIN,    GPIO_Mode_Out_PP_High_Fast);
+ 207  00b0 4bf0          	push	#240
+ 208  00b2 4b04          	push	#4
  209  00b4 ae5005        	ldw	x,#20485
  210  00b7 cd0000        	call	_GPIO_Init
  212  00ba 85            	popw	x
- 213                     ; 75   GPIO_Init(NMOS_R_PORT,  NMOS_R_PIN,    GPIO_Mode_Out_PP_Low_Fast);
+ 213                     ; 77   GPIO_Init(NMOS_L_PORT,  NMOS_L_PIN,    GPIO_Mode_Out_PP_Low_Fast);
  215  00bb 4be0          	push	#224
- 216  00bd 4b04          	push	#4
- 217  00bf ae500a        	ldw	x,#20490
+ 216  00bd 4b01          	push	#1
+ 217  00bf ae5005        	ldw	x,#20485
  218  00c2 cd0000        	call	_GPIO_Init
  220  00c5 85            	popw	x
- 221                     ; 76 }
- 224  00c6 81            	ret	
- 237                     	xdef	_Config
- 238                     	xref	_TIM4_TimeBaseInit
- 239                     	xref	_TIM3_SelectSlaveMode
- 240                     	xref	_TIM3_SelectInputTrigger
- 241                     	xref	_TIM3_ITConfig
- 242                     	xref	_TIM3_Cmd
- 243                     	xref	_TIM3_ICInit
- 244                     	xref	_TIM3_TimeBaseInit
- 245                     	xref	_TIM2_ITConfig
- 246                     	xref	_TIM2_Cmd
- 247                     	xref	_TIM2_TimeBaseInit
- 248                     	xref	_GPIO_Init
- 249                     	xref	_CLK_PeripheralClockConfig
- 268                     	end
+ 221                     ; 78   GPIO_Init(NMOS_R_PORT,  NMOS_R_PIN,    GPIO_Mode_Out_PP_Low_Fast);
+ 223  00c6 4be0          	push	#224
+ 224  00c8 4b04          	push	#4
+ 225  00ca ae500a        	ldw	x,#20490
+ 226  00cd cd0000        	call	_GPIO_Init
+ 228  00d0 85            	popw	x
+ 229                     ; 79 }
+ 232  00d1 81            	ret	
+ 245                     	xdef	_Config
+ 246                     	xref	_TIM4_TimeBaseInit
+ 247                     	xref	_TIM3_SelectSlaveMode
+ 248                     	xref	_TIM3_SelectInputTrigger
+ 249                     	xref	_TIM3_ITConfig
+ 250                     	xref	_TIM3_Cmd
+ 251                     	xref	_TIM3_ICInit
+ 252                     	xref	_TIM3_TimeBaseInit
+ 253                     	xref	_TIM2_ITConfig
+ 254                     	xref	_TIM2_Cmd
+ 255                     	xref	_TIM2_TimeBaseInit
+ 256                     	xref	_GPIO_Init
+ 257                     	xref	_CLK_PeripheralClockConfig
+ 276                     	end

@@ -3,7 +3,7 @@ DumpRWOnFly1=0
 DumpRWOnFly2=0
 DumpRWOnFly3=0
 DumpRWOnFly4=0
-WatchVariables1=cap_rise!0;cap_fall!0;FLAG_CC_Error!0;FLAG_rise_edge!0;FLAG_fall_edge!0;RF_bits!0;RF_data!1;RF_bytes!0;RF_rcvState!0;RcvRFmsg!1;rcv_buff!0;idx!2;rf_bittime!0;rf_halfbittime!0;rf_low_time!0;rf_offset!0;rf_high_time!0;RF_data!1;RF_bits!0;RF_bytes!0;
+WatchVariables1=RcvRFmsg!0;rcv_buff!0;idx!2;
 FormatWatch1=0
 FormatViewType1=1
 FormatViewAddress1=1
@@ -34,6 +34,6 @@ ShowRegisterAddress=1
 [DebugState_v1-Debug.AddOn.St7McuIcdConf]
 McuName=STM8L101F2U
 [DebugState_v1-Debug.AddOn.IcdBreak]
-ICDBreak0=CR:0x00000000,BK1:0x00000000,BK2:0x00000000
+ICDBreak0=CR:0x00000000,BK1:0x00ffffff,BK2:0x00ffffff
 [DebugState_v1-Debug.AddOn.SteppingMode]
 Mode=hardware
