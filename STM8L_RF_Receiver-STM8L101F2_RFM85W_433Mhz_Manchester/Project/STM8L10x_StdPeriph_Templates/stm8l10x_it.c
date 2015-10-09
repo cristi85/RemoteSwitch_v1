@@ -178,6 +178,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
       {
         case RF_WAITSTART_WAITSTARTPULSE:
         {
+          DEBUG_PIN_ON;
           if(FLAG_fall_edge)
           {
             if(cap_fall <= 500+rf_edges_jitter && cap_fall >= 500-rf_edges_jitter)
@@ -197,6 +198,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
         }
         case RF_WAITSTART_WAITNEXTEDGE:
         {
+          DEBUG_PIN_ON;
           if(FLAG_rise_edge)
           {
             rf_low_time = cap_rise-cap_fall;
@@ -225,6 +227,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     }
     case RF_RCVSTATE_RECBITS:
     {
+      DEBUG_PIN_OFF;
       // ----- pulse duration logging -----
       if(idx < RF_REC_LEN)
       {
