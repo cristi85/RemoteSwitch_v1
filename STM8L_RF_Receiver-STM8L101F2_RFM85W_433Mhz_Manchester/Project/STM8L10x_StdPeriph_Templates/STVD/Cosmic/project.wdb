@@ -56,7 +56,7 @@ ptn_Child46=Bar-45
 
 [WorkState_v1_2.DockState.Bar-0]
 BarID=59419
-Bars=38
+Bars=25
 Bar#0=0
 Bar#1=32768
 Bar#2=0
@@ -82,19 +82,6 @@ Bar#21=0
 Bar#22=0
 Bar#23=0
 Bar#24=0
-Bar#25=0
-Bar#26=0
-Bar#27=0
-Bar#28=0
-Bar#29=0
-Bar#30=0
-Bar#31=0
-Bar#32=0
-Bar#33=0
-Bar#34=0
-Bar#35=0
-Bar#36=0
-Bar#37=0
 Style=0
 ExStyle=0
 PrevFloating=False
@@ -285,7 +272,7 @@ ResourceID=0
 
 [WorkState_v1_2.DockState.Bar-6]
 BarID=59421
-Bars=13
+Bars=12
 Bar#0=0
 Bar#1=35103
 Bar#2=35102
@@ -298,7 +285,6 @@ Bar#8=5710
 Bar#9=0
 Bar#10=73539
 Bar#11=0
-Bar#12=0
 Style=0
 ExStyle=0
 PrevFloating=False

@@ -29,6 +29,7 @@
 #include "errors.h"
 #include "stm8l10x_it.h"
 #include "timeout.h"
+#include "rtms.h"
 /** @addtogroup STM8L15x_StdPeriph_Template
   * @{
   */
@@ -108,6 +109,9 @@ void BTN1_Released(void);
 void LearnNewID(void);
 _Bool IsLearnedID(void);
 
+// RUNTIME MEASUREMENT
+RTMS_DECLARE(runtime_it_1ms);
+RTMS_DECLARE(runtime_it_RFrcv);
 /**
   * @brief  Main program.
   * @param  None
@@ -121,6 +125,8 @@ void main(void)
   Config();
   program_status = 2;
   Errors_Init();
+  RTMS_INIT(runtime_it_1ms);
+  RTMS_INIT(runtime_it_RFrcv);
   enableInterrupts();
   LED_GREEN_ON;
   /* Wait for power supply settling */
@@ -164,11 +170,6 @@ void main(void)
         {
           RFbytesReady = FALSE;
           state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
-        }
-        if(FLAG_250ms)
-        {
-          FLAG_250ms = FALSE;
-          TASK_250ms();
         }
         if(FLAG_500ms)
         {
@@ -370,11 +371,6 @@ void TASK_1000ms()
 void TASK_500ms()
 {
   flash_erase_timing_test = 0;
-}
-
-void TASK_250ms()
-{
-
 }
 
 #ifdef  USE_FULL_ASSERT

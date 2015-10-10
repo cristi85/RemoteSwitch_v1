@@ -29,13 +29,11 @@
 #include "stm8l10x_it.h"
 #include "board.h"
 #include "delay.h"
+#include "rtms.h"
 /** @addtogroup STM8L10x_StdPeriph_Templates
   * @{
   */
 /* Periodic Tasks */
-#define CNTVAL_250MS  (u16)250
-_Bool FLAG_250ms = FALSE;
-u16 cnt_flag_250ms = 0;
 #define CNTVAL_500MS  (u16)500
 _Bool FLAG_500ms = FALSE;
 u16 cnt_flag_500ms = 0;
@@ -85,13 +83,13 @@ extern _Bool flag_blink_greenLED;
 // ===== RF Receive =====
 #define RF_RCVTIMEOUT     (u8)100     // 100ms
 #define RFSYNCVAL         (u16)0xA55A
-#define RF_REC_LEN        (u8)77
+#define RF_REC_LEN        (u8)50
 
 // START pulse is accepted between 200us and 8ms
-// bit time will be between 100us and 4ms
-// baudrate will be between 10kbps and 250bps
-#define RF_STARTTIME_LOW  (u16)200   // 200us 
-#define RF_STARTTIME_HIGH (u16)8000  // 8ms
+// bit time will be between 100us and 5ms
+// baudrate will be between 10kbps and 200bps
+#define RF_STARTTIME_LOW  (u16)200     // 200us 
+#define RF_STARTTIME_HIGH (u16)10000   // 10ms
 //#define RF_DEFAULTBITTIME (u16)500   // 500us
 
 static u16 cap_rise, cap_fall;
@@ -124,6 +122,10 @@ typedef enum {
 RF_waitstart_substate_t RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
 static RF_rcvState_t RF_rcvState = RF_RCVSTATE_WAITSTART;
 _Bool FLAG_UART_cmd_rcv = FALSE;
+
+RTMS_DECLARE_EXTERN(runtime_it_1ms);
+RTMS_DECLARE_EXTERN(runtime_it_RFrcv);
+
 //static volatile u8 test_cnt = 0;
 //static volatile test = 0;
 /* Private typedef -----------------------------------------------------------*/
@@ -160,6 +162,7 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
   //  | P | P |  S |1 |0 |1 |
   // _|-|_|-|_|--|_|-|__|--|_
   //  | P | P |  S |0 |1 |0 |
+  RTMS_MEASURE_START(runtime_it_RFrcv);
   if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
     cap_rise = TIM3_GetCapture1();
     FLAG_rise_edge = TRUE;
@@ -372,28 +375,24 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
   }
   TIM3_ClearITPendingBit(TIM3_IT_CC1);
   TIM3_ClearITPendingBit(TIM3_IT_CC2);
+  RTMS_MEASURE_STOP(runtime_it_RFrcv);
 }
 
 /**
-  * @brief  Timer2 Update/Overflow/Trigger/Break Interrupt routine.
+  * @brief  Timer4 Update/Overflow Interrupt routine.
   * @param  None
   * @retval None
   */
-INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)  // every 1ms
+INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+  RTMS_MEASURE_START(runtime_it_1ms);
   interrupt_status = 1;
-  if(TIM2_GetITStatus(TIM2_IT_Update))  //1ms
+  if(TIM4_GetITStatus(TIM4_IT_Update))  //1ms
   {
     /* ===== CKECK PERIODIC TASKS FLAGS ===== */
-    if(cnt_flag_250ms < U16_MAX) cnt_flag_250ms++;
-    if(cnt_flag_250ms >= CNTVAL_250MS) 
-    {
-      cnt_flag_250ms = 0;
-      FLAG_250ms = TRUE;
-    }
     if(cnt_flag_500ms < U16_MAX) cnt_flag_500ms++;
     if(cnt_flag_500ms >= CNTVAL_500MS) 
     {
@@ -532,9 +531,22 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)  // every 1ms
       }
     }
     /* ======================================= */
-    TIM2_ClearITPendingBit(TIM2_IT_Update);        // clear TIM2 update interrupt flag
+    TIM4_ClearITPendingBit(TIM4_IT_Update);        // clear TIM4 update interrupt flag
   }
   interrupt_status = 0;
+  RTMS_MEASURE_STOP(runtime_it_1ms);
+}
+
+/**
+  * @brief  Timer2 Update/Overflow/Trigger/Break Interrupt routine.
+  * @param  None
+  * @retval None
+  */
+INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_IRQHandler, 19)
+{
+    /* In order to detect unexpected events during development,
+       it is recommended to set a breakpoint on the following instruction.
+    */
 }
 
 /**
@@ -723,18 +735,6 @@ INTERRUPT_HANDLER(COMP_IRQHandler, 18)
   * @retval None
   */
 INTERRUPT_HANDLER(TIM2_CAP_IRQHandler, 20)
-{
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
-}
-
-/**
-  * @brief  Timer4 Update/Overflow Interrupt routine.
-  * @param  None
-  * @retval None
-  */
-INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.

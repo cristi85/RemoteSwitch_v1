@@ -164,16 +164,6 @@ Next=Root.Source Files...\..\config.c
 [Root.Source Files...\..\config.c]
 ElemType=File
 PathName=..\..\config.c
-Next=Root.Source Files...\..\delay.c
-
-[Root.Source Files...\..\delay.c]
-ElemType=File
-PathName=..\..\delay.c
-Next=Root.Source Files...\..\delay.h
-
-[Root.Source Files...\..\delay.h]
-ElemType=File
-PathName=..\..\delay.h
 Next=Root.Source Files...\..\errors.c
 
 [Root.Source Files...\..\errors.c]
@@ -189,6 +179,16 @@ Next=Root.Source Files...\..\main.c
 [Root.Source Files...\..\main.c]
 ElemType=File
 PathName=..\..\main.c
+Next=Root.Source Files...\..\rtms.c
+
+[Root.Source Files...\..\rtms.c]
+ElemType=File
+PathName=..\..\rtms.c
+Next=Root.Source Files...\..\rtms.h
+
+[Root.Source Files...\..\rtms.h]
+ElemType=File
+PathName=..\..\rtms.h
 Next=Root.Source Files...\..\stm8l10x_it.c
 
 [Root.Source Files...\..\stm8l10x_it.c]

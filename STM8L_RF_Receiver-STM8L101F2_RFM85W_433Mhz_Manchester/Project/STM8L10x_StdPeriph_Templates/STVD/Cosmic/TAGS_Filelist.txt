@@ -1,7 +1,5 @@
 ..\..\board.h
 ..\..\config.c
-..\..\delay.c
-..\..\delay.h
 ..\..\errors.c
 ..\..\errors.h
 ..\..\main.c
@@ -41,5 +39,6 @@ stm8_interrupt_vector.c
 ..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_usart.h
 ..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_wfe.h
 ..\..\config.h
+..\..\delay.h
 ..\..\stm8l10x_conf.h
 c:\program files (x86)\cosmic\cxstm8_32k\hstm8\mods0.h

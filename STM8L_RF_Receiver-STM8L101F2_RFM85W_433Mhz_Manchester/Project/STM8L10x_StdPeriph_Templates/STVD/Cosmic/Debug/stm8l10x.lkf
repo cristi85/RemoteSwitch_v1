@@ -49,9 +49,9 @@ crtsi0.sm8
 # Object files list - section reserved for STVD
 #<BEGIN OBJECT_FILES>
 Debug\config.o
-Debug\delay.o
 Debug\errors.o
 Debug\main.o
+Debug\rtms.o
 Debug\stm8l10x_it.o
 Debug\timeout.o
 Debug\stm8l10x_clk.o

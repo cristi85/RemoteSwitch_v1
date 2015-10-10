@@ -39,7 +39,6 @@ extern u8 BTN1_DEB_STATE;
 extern _Bool BTN1_DELAY_FLAG;
 extern u16 BTN1_press_timer;
 
-extern _Bool FLAG_250ms;
 extern _Bool FLAG_500ms;
 extern _Bool FLAG_1000ms;
 
