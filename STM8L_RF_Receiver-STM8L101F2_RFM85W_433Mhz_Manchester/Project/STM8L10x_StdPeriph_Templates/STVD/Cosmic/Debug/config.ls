@@ -94,8 +94,8 @@
  183  008d ae5000        	ldw	x,#20480
  184  0090 cd0000        	call	_GPIO_Init
  186  0093 85            	popw	x
- 187                     ; 55   GPIO_Init(RFM_DATA_PORT, RFM_DATA_PIN, GPIO_Mode_In_PU_No_IT);
- 189  0094 4b40          	push	#64
+ 187                     ; 55   GPIO_Init(RFM_DATA_PORT, RFM_DATA_PIN, GPIO_Mode_In_FL_No_IT);
+ 189  0094 4b00          	push	#0
  190  0096 4b02          	push	#2
  191  0098 ae5005        	ldw	x,#20485
  192  009b cd0000        	call	_GPIO_Init

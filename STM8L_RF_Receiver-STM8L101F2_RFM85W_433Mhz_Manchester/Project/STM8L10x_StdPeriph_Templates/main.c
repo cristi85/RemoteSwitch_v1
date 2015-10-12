@@ -50,12 +50,11 @@
 #define HBRIDGE_CHARGE_TIME        (u16)1000  /* minimum H-Bridge capacitor charge time [ms] */
 #define HBRIDGE_ON_TIME            (u8)100    /* H-Bridge conduction time [ms] */
 #define MAX_NUM_RECEIVERS          (u8)10
-#define CONSEC_ERROR_NRF24_REG_THR (u8)10
 #define BTN1_DELETE_ID_THR         (u16)3000
 /* Private typedef -----------------------------------------------------------*/
 typedef struct
 {
-  u32 ID[MAX_NUM_RECEIVERS];
+  u8 ID[MAX_NUM_RECEIVERS];
   u8 NumLrndRcv;
 } tReceivers;
 typedef union
@@ -85,7 +84,7 @@ typedef enum {
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static u8 LightState = LIGHTSTATE_OFF;
-static const tReceivers Receivers;
+static const volatile tReceivers Receivers;
 static tBtoDW BtoDW;
 static _Bool LrnModeActive = FALSE;
 static _Bool FLAG_BTN1_lock = FALSE;
@@ -170,11 +169,6 @@ void main(void)
         {
           RFbytesReady = FALSE;
           state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
-        }
-        if(FLAG_500ms)
-        {
-          FLAG_500ms = FALSE;
-          TASK_500ms();
         }
         if(FLAG_1000ms)
         {
@@ -261,9 +255,9 @@ _Bool IsLearnedID()
 {
   u8 i;
   _Bool flag_IDfound = FALSE;
-  for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
+  for(i = 0; i < Receivers.NumLrndRcv; i++)
   {
-    if( BtoDW.DW == (*(u32*)(&(Receivers.ID[i]))) )
+    if(RcvRFmsg.RFmsgmember.RFNodeId == Receivers.ID[i])
     {
       flag_IDfound = TRUE;
       break;
@@ -277,9 +271,9 @@ void LearnNewID()
   // Check if ID already exists
   u8 i;
   _Bool flag_IDfound = FALSE;
-  for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
+  for(i = 0; i < Receivers.NumLrndRcv; i++)
   {
-    if( BtoDW.DW == (*(u32*)(&(Receivers.ID[i]))) )
+    if( RcvRFmsg.RFmsgmember.RFNodeId == Receivers.ID[i])
     {
       flag_IDfound = TRUE;
       break;
@@ -289,11 +283,8 @@ void LearnNewID()
   {
     // Store Received ID in flash
     FLASH_Unlock(FLASH_MemType_Program);
-    FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+0, (u8)BtoDW.B.b0 );
-    FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+1, (u8)BtoDW.B.b1 );
-    FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+2, (u8)BtoDW.B.b2 );
-    FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+3, (u8)BtoDW.B.b3 );
-    FLASH_ProgramByte( (u16)(u8*)(&Receivers.NumLrndRcv), (u8)(*(u8*)(&(Receivers.NumLrndRcv))+1) );
+    FLASH_ProgramByte( (u16)(u8*)(&Receivers.ID[Receivers.NumLrndRcv]), (u8)RcvRFmsg.RFmsgmember.RFNodeId );
+    FLASH_ProgramByte( (u16)(u8*)(&Receivers.NumLrndRcv), Receivers.NumLrndRcv + 1);
     FLASH_Lock(FLASH_MemType_Program);
     /* Check what was written */
     if( BtoDW.DW != (*(u32*)(&(Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv))) - 1]))) )
@@ -314,7 +305,7 @@ void BTN1_Released()
     {
       if(!LrnModeActive)
       {
-        if((*(u8*)(&Receivers.NumLrndRcv)) < 10)
+        if(Receivers.NumLrndRcv < MAX_NUM_RECEIVERS)
         {
           LrnModeActive = TRUE;
           BLINK_GREENLED(255);
@@ -366,11 +357,6 @@ void BTN1_Released()
 void TASK_1000ms()
 {
   task_1000ms_cnt++;
-}
-
-void TASK_500ms()
-{
-  flash_erase_timing_test = 0;
 }
 
 #ifdef  USE_FULL_ASSERT

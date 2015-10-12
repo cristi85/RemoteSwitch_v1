@@ -122,6 +122,7 @@ typedef enum {
 RF_waitstart_substate_t RF_waitstart_substate = RF_WAITSTART_WAITSTARTPULSE;
 static RF_rcvState_t RF_rcvState = RF_RCVSTATE_WAITSTART;
 _Bool FLAG_UART_cmd_rcv = FALSE;
+static u8 templ, temph;
 
 RTMS_DECLARE_EXTERN(runtime_it_1ms);
 RTMS_DECLARE_EXTERN(runtime_it_RFrcv);
@@ -163,13 +164,23 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
   // _|-|_|-|_|--|_|-|__|--|_
   //  | P | P |  S |0 |1 |0 |
   RTMS_MEASURE_START(runtime_it_RFrcv);
-  if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
+  //if(TIM3_GetITStatus(TIM3_IT_CC1) == SET) {
+  if((u8)(TIM3->SR1 & (u8)TIM3_IT_CC1)) {
     cap_rise = TIM3_GetCapture1();
+    /*temph = TIM3->CCR1H;
+    templ = TIM3->CCR1L;
+    cap_rise = (u16)(templ);
+    cap_rise |= (u16)((u16)temph << 8);*/
     FLAG_rise_edge = TRUE;
   }
   else FLAG_rise_edge = FALSE;
-  if(TIM3_GetITStatus(TIM3_IT_CC2) == SET) {
+  //if(TIM3_GetITStatus(TIM3_IT_CC2) == SET) {
+  if((u8)(TIM3->SR1 & (u8)TIM3_IT_CC2)) {
     cap_fall = TIM3_GetCapture2();
+    /*temph = TIM3->CCR2H;
+    templ = TIM3->CCR2L;
+    cap_rise = (u16)(templ);
+    cap_rise |= (u16)((u16)temph << 8);*/
     FLAG_fall_edge = TRUE;
   }
   else FLAG_fall_edge = FALSE;
@@ -373,8 +384,10 @@ INTERRUPT_HANDLER(TIM3_CAP_IRQHandler, 22)
     }
     default: break;
   }
-  TIM3_ClearITPendingBit(TIM3_IT_CC1);
-  TIM3_ClearITPendingBit(TIM3_IT_CC2);
+  //TIM3_ClearITPendingBit(TIM3_IT_CC1);
+  TIM3->SR1 = (u8)(~(u8)TIM3_IT_CC1);
+  //TIM3_ClearITPendingBit(TIM3_IT_CC2);
+  TIM3->SR1 = (u8)(~(u8)TIM3_IT_CC2);
   RTMS_MEASURE_STOP(runtime_it_RFrcv);
 }
 
@@ -390,15 +403,15 @@ INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
     */
   RTMS_MEASURE_START(runtime_it_1ms);
   interrupt_status = 1;
-  if(TIM4_GetITStatus(TIM4_IT_Update))  //1ms
+  if((u8)(TIM4->SR1 & (u8)TIM4_IT_Update))  //1ms
   {
     /* ===== CKECK PERIODIC TASKS FLAGS ===== */
-    if(cnt_flag_500ms < U16_MAX) cnt_flag_500ms++;
+    /*if(cnt_flag_500ms < U16_MAX) cnt_flag_500ms++;
     if(cnt_flag_500ms >= CNTVAL_500MS) 
     {
       cnt_flag_500ms = 0;
       FLAG_500ms = TRUE;
-    }
+    }*/
     if(cnt_flag_1000ms < U16_MAX) cnt_flag_1000ms++;
     if(cnt_flag_1000ms >= CNTVAL_1000MS) 
     {
@@ -531,7 +544,7 @@ INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 25)
       }
     }
     /* ======================================= */
-    TIM4_ClearITPendingBit(TIM4_IT_Update);        // clear TIM4 update interrupt flag
+    TIM4->SR1 = (u8)(~(u8)TIM4_IT_Update);       // clear TIM4 update interrupt flag
   }
   interrupt_status = 0;
   RTMS_MEASURE_STOP(runtime_it_1ms);

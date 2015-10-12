@@ -52,7 +52,7 @@ void Config()
   GPIO_Init(BTN1_PORT, BTN1_PIN, GPIO_Mode_In_FL_No_IT);
   
   /* RFM85W pins */
-  GPIO_Init(RFM_DATA_PORT, RFM_DATA_PIN, GPIO_Mode_In_PU_No_IT);
+  GPIO_Init(RFM_DATA_PORT, RFM_DATA_PIN, GPIO_Mode_In_FL_No_IT);
   
   /* DEBUG pin */
   GPIO_Init(DEBUG_PIN_PORT, DEBUG_PIN_PIN, GPIO_Mode_Out_PP_Low_Fast);

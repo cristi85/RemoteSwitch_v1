@@ -29,590 +29,550 @@
   45  0006 00            	dc.b	0
   46  0007               L73_init_delay:
   47  0007 ffff          	dc.w	-1
- 112                     ; 120 void main(void)
- 112                     ; 121 {
- 114                     .text:	section	.text,new
- 115  0000               _main:
- 119                     ; 122   flash_erase_timing_test = 0;
- 121  0000 3f14          	clr	L14_flash_erase_timing_test
- 122                     ; 123   program_status = 1;
- 124  0002 35010003      	mov	L52_program_status,#1
- 125                     ; 124   disableInterrupts();
- 128  0006 9b            	sim	
- 130                     ; 125   Config();
- 133  0007 cd0000        	call	_Config
- 135                     ; 126   program_status = 2;
- 137  000a 35020003      	mov	L52_program_status,#2
- 138                     ; 127   Errors_Init();
- 140  000e cd0000        	call	_Errors_Init
- 142                     ; 128   RTMS_INIT(runtime_it_1ms);
- 144  0011 aeffff        	ldw	x,#65535
- 145  0014 bf0a          	ldw	_runtime_it_1ms,x
- 148  0016 5f            	clrw	x
- 149  0017 bf0c          	ldw	_runtime_it_1ms+2,x
- 152  0019 bf0e          	ldw	_runtime_it_1ms+4,x
- 155  001b bf12          	ldw	_runtime_it_1ms+8,x
- 158  001d bf10          	ldw	_runtime_it_1ms+6,x
- 159                     ; 129   RTMS_INIT(runtime_it_RFrcv);
- 162  001f 5a            	decw	x
- 163  0020 bf00          	ldw	_runtime_it_RFrcv,x
- 166  0022 5f            	clrw	x
- 167  0023 bf02          	ldw	_runtime_it_RFrcv+2,x
- 170  0025 bf04          	ldw	_runtime_it_RFrcv+4,x
- 173  0027 bf08          	ldw	_runtime_it_RFrcv+8,x
- 176  0029 bf06          	ldw	_runtime_it_RFrcv+6,x
- 177                     ; 130   enableInterrupts();
- 181  002b 9a            	rim	
- 183                     ; 131   LED_GREEN_ON;
- 186  002c 7217500a      	bres	20490,#3
- 189  0030 7218500a      	bset	20490,#4
- 190                     ; 133   Timeout_SetTimeout2(200);
- 193  0034 ae00c8        	ldw	x,#200
- 194  0037 cd0000        	call	_Timeout_SetTimeout2
- 197  003a               L501:
- 198                     ; 134   while(!Timeout_IsTimeout2());
- 200  003a cd0000        	call	_Timeout_IsTimeout2
- 202  003d 4d            	tnz	a
- 203  003e 27fa          	jreq	L501
- 204                     ; 135   LED_OFF;
- 206  0040 7217500a      	bres	20490,#3
- 209  0044 7219500a      	bres	20490,#4
- 210                     ; 136   program_status = 3;
- 213  0048 35030003      	mov	L52_program_status,#3
- 214                     ; 137   if(RST_GetFlagStatus(RST_FLAG_IWDGF))
- 216  004c a602          	ld	a,#2
- 217  004e cd0000        	call	_RST_GetFlagStatus
- 219  0051 4d            	tnz	a
- 220  0052 2706          	jreq	L111
- 221                     ; 139     BLINK_REDLED(1);
- 223  0054 35010000      	mov	_blink_redLED_times,#1
- 233  0058 200c          	jp	LC001
- 234  005a               L111:
- 235                     ; 141   else if(RST_GetFlagStatus(RST_FLAG_ILLOPF))
- 237  005a a604          	ld	a,#4
- 238  005c cd0000        	call	_RST_GetFlagStatus
- 240  005f 4d            	tnz	a
- 241  0060 270b          	jreq	L311
- 242                     ; 143     BLINK_REDLED(2);
- 244  0062 35020000      	mov	_blink_redLED_times,#2
- 258  0066               LC001:
- 260  0066 72110000      	bres	_flag_blink_unlimited
- 263  006a cd019d        	call	LC004
- 265  006d               L311:
- 266                     ; 145   RST_ClearFlag(RST_FLAG_POR_PDR | RST_FLAG_SWIMF | RST_FLAG_ILLOPF | RST_FLAG_IWDGF);
- 268  006d a60f          	ld	a,#15
- 269  006f cd0000        	call	_RST_ClearFlag
- 272  0072               L121:
- 273                     ; 146   while(ISBLINKING_REDLED);
- 275  0072 72000000fb    	btjt	_flag_blink_redLED,L121
- 276                     ; 147   program_status = 4;
- 278  0077 35040003      	mov	L52_program_status,#4
- 279                     ; 148   HBRIDGE_OFF;
- 281  007b cd0187        	call	LC003
- 283                     ; 151   IWDG_Enable();
- 285  007e cd0000        	call	_IWDG_Enable
- 287                     ; 152   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
- 289  0081 a655          	ld	a,#85
- 290  0083 cd0000        	call	_IWDG_WriteAccessCmd
- 292                     ; 153   IWDG_SetPrescaler(IWDG_Prescaler_64);  /* 431.15ms for RL[7:0]= 0xFF */
- 294  0086 a604          	ld	a,#4
- 295  0088 cd0000        	call	_IWDG_SetPrescaler
- 297                     ; 154   IWDG_SetReload(0xFF);
- 299  008b a6ff          	ld	a,#255
- 300  008d cd0000        	call	_IWDG_SetReload
- 302                     ; 155   IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
- 304  0090 4f            	clr	a
- 305  0091 cd0000        	call	_IWDG_WriteAccessCmd
- 307                     ; 156   IWDG_ReloadCounter();
- 309  0094 cd0000        	call	_IWDG_ReloadCounter
- 311                     ; 157   program_status = 5;
- 313  0097 35050003      	mov	L52_program_status,#5
- 314  009b               L521:
- 315                     ; 160     switch(state)
- 317  009b b602          	ld	a,L32_state
- 319                     ; 241       default: break;
- 320  009d 2603cc014c    	jreq	LC002
- 321  00a2 4a            	dec	a
- 322  00a3 2713          	jreq	L54
- 323  00a5 a002          	sub	a,#2
- 324  00a7 274b          	jreq	L74
- 325  00a9 4a            	dec	a
- 326  00aa 2603cc012c    	jreq	L75
- 327  00af 4a            	dec	a
- 328  00b0 2603cc0138    	jreq	L16
- 329  00b5 cc0150        	jra	L331
- 330                     ; 164         state = ST_WAIT_INPUT_OR_FLAG;
- 331                     ; 165         break;
- 333  00b8               L54:
- 334                     ; 169         if(RFbytesReady)
- 336  00b8 3d00          	tnz	_RFbytesReady
- 337  00ba 2706          	jreq	L531
- 338                     ; 171           RFbytesReady = FALSE;
- 340  00bc b700          	ld	_RFbytesReady,a
- 341                     ; 172           state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
- 343  00be 35040002      	mov	L32_state,#4
- 344  00c2               L531:
- 345                     ; 174         if(FLAG_500ms)
- 347  00c2 7201000007    	btjf	_FLAG_500ms,L731
- 348                     ; 176           FLAG_500ms = FALSE;
- 350  00c7 72110000      	bres	_FLAG_500ms
- 351                     ; 177           TASK_500ms();
- 353  00cb cd0000        	call	_TASK_500ms
- 355  00ce               L731:
- 356                     ; 179         if(FLAG_1000ms)
- 358  00ce 7201000004    	btjf	_FLAG_1000ms,L141
- 359                     ; 181           FLAG_1000ms = FALSE;
- 361  00d3 72110000      	bres	_FLAG_1000ms
- 362  00d7               L141:
- 363                     ; 184         if(BTN1_DEB_STATE == BTN_PRESSED && !FLAG_BTN1_lock)
- 365  00d7 b600          	ld	a,_BTN1_DEB_STATE
- 366  00d9 4a            	dec	a
- 367  00da 2609          	jrne	L341
- 369  00dc 7200000104    	btjt	L31_FLAG_BTN1_lock,L341
- 370                     ; 186           FLAG_BTN1_lock = TRUE;
- 372  00e1 72100001      	bset	L31_FLAG_BTN1_lock
- 373  00e5               L341:
- 374                     ; 188         if(BTN1_DEB_STATE == BTN_DEPRESSED && FLAG_BTN1_lock)
- 376  00e5 b600          	ld	a,_BTN1_DEB_STATE
- 377  00e7 2667          	jrne	L331
- 379  00e9 7201000162    	btjf	L31_FLAG_BTN1_lock,L331
- 380                     ; 190           FLAG_BTN1_lock = FALSE;
- 382  00ee 72110001      	bres	L31_FLAG_BTN1_lock
- 383  00f2 205c          	jra	L331
- 384  00f4               L74:
- 385                     ; 199         LED_GREEN_ON;
- 387  00f4 7217500a      	bres	20490,#3
- 390  00f8 7218500a      	bset	20490,#4
- 391                     ; 200         switch(RcvRFmsg.RFmsgmember.RFcmd)
- 394  00fc b603          	ld	a,_RcvRFmsg+3
- 396                     ; 214           default: break;
- 397  00fe a00f          	sub	a,#15
- 398  0100 2706          	jreq	L15
- 399  0102 a0e1          	sub	a,#225
- 400  0104 2710          	jreq	L35
- 401  0106 2018          	jra	L151
- 402  0108               L15:
- 403                     ; 204             LIGHT_ON;
- 405  0108 72155005      	bres	20485,#2
- 408  010c 72105005      	bset	20485,#0
- 409                     ; 205             LightState = LIGHTSTATE_ON;
- 412  0110 35010000      	mov	L3_LightState,#1
- 413                     ; 206             break;
- 415  0114 200a          	jra	L151
- 416  0116               L35:
- 417                     ; 210             LIGHT_OFF;
- 419  0116 7211500f      	bres	20495,#0
- 422  011a 7214500a      	bset	20490,#2
- 423                     ; 211             LightState = LIGHTSTATE_OFF;
- 426  011e b700          	ld	L3_LightState,a
- 427                     ; 212             break;
- 429                     ; 214           default: break;
- 431  0120               L151:
- 432                     ; 217         Timeout_SetTimeout1(HBRIDGE_ON_TIME);
- 434  0120 ae0064        	ldw	x,#100
- 435  0123 cd0000        	call	_Timeout_SetTimeout1
- 437                     ; 218         state = ST_WAIT_TIMEOUT1_HBRIDGE_ON;
- 439  0126 35050002      	mov	L32_state,#5
- 440                     ; 219         break;
- 442  012a 2024          	jra	L331
- 443  012c               L75:
- 444                     ; 223         if(Timeout_IsTimeout1())
- 446  012c cd0000        	call	_Timeout_IsTimeout1
- 448  012f 4d            	tnz	a
- 449  0130 271e          	jreq	L331
- 450                     ; 225           state = ST_SWITCH_LIGHT;
- 452  0132 35030002      	mov	L32_state,#3
- 453  0136 2018          	jra	L331
- 454  0138               L16:
- 455                     ; 231         if(Timeout_IsTimeout1())
- 457  0138 cd0000        	call	_Timeout_IsTimeout1
- 459  013b 4d            	tnz	a
- 460  013c 2712          	jreq	L331
- 461                     ; 233           HBRIDGE_OFF;
- 463  013e ad47          	call	LC003
- 465                     ; 236           BLINKSTOP_GREENLED;
- 467  0140 72110000      	bres	_flag_blink_greenLED
- 470  0144 7217500a      	bres	20490,#3
- 473  0148 7219500a      	bres	20490,#4
- 474                     ; 237           state = ST_WAIT_INPUT_OR_FLAG;
- 478  014c               LC002:
- 480  014c 35010002      	mov	L32_state,#1
- 481                     ; 241       default: break;
- 483  0150               L331:
- 484                     ; 243     IWDG_ReloadCounter();
- 486  0150 cd0000        	call	_IWDG_ReloadCounter
- 488                     ; 244     if(Errors_IsError() && !FLAG_reset_LEDblink_error)
- 490  0153 cd0000        	call	_Errors_IsError
- 492  0156 4d            	tnz	a
- 493  0157 2716          	jreq	L751
- 495  0159 7200000211    	btjt	L51_FLAG_reset_LEDblink_error,L751
- 496                     ; 246       BLINK_REDLED(255);
- 498  015e 35ff0000      	mov	_blink_redLED_times,#255
- 501  0162 72100000      	bset	_flag_blink_unlimited
- 506  0166 ad35          	call	LC004
- 507                     ; 247       FLAG_reset_LEDblink_error = TRUE;
- 510  0168 72100002      	bset	L51_FLAG_reset_LEDblink_error
- 512  016c cc009b        	jra	L521
- 513  016f               L751:
- 514                     ; 251       if(FLAG_reset_LEDblink_error)
- 516  016f 72010002f8    	btjf	L51_FLAG_reset_LEDblink_error,L521
- 517                     ; 253         BLINKSTOP_REDLED;
- 519  0174 72110000      	bres	_flag_blink_redLED
- 522  0178 7217500a      	bres	20490,#3
- 525  017c 7219500a      	bres	20490,#4
- 526                     ; 254         FLAG_reset_LEDblink_error = FALSE;
- 530  0180 72110002      	bres	L51_FLAG_reset_LEDblink_error
- 531  0184 cc009b        	jra	L521
- 532  0187               LC003:
- 533  0187 7210500f      	bset	20495,#0
- 534                     ; 148   HBRIDGE_OFF;
- 536  018b 72145005      	bset	20485,#2
- 539  018f 72115005      	bres	20485,#0
- 542  0193 7215500a      	bres	20490,#2
- 543                     ; 149   Timeout_SetTimeout1(HBRIDGE_CHARGE_TIME);
- 546  0197 ae03e8        	ldw	x,#1000
- 547  019a cc0000        	jp	_Timeout_SetTimeout1
- 548  019d               LC004:
- 549  019d 5f            	clrw	x
- 550  019e 72100000      	bset	_flag_blink_on_off
- 551  01a2 bf00          	ldw	_cnt_state_redLED,x
- 553  01a4 7216500a      	bset	20490,#3
- 555  01a8 7219500a      	bres	20490,#4
- 557  01ac 72100000      	bset	_flag_blink_redLED
- 558  01b0 81            	ret	
- 605                     ; 260 _Bool IsLearnedID()
- 605                     ; 261 {
- 606                     .text:	section	.text,new
- 607  0000               _IsLearnedID:
- 609  0000 89            	pushw	x
- 610       00000002      OFST:	set	2
- 613                     ; 263   _Bool flag_IDfound = FALSE;
- 615  0001 0f01          	clr	(OFST-1,sp)
- 616                     ; 264   for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
- 618  0003 0f02          	clr	(OFST+0,sp)
- 620  0005 2020          	jra	L312
- 621  0007               L702:
- 622                     ; 266     if( BtoDW.DW == (*(u32*)(&(Receivers.ID[i]))) )
- 624  0007 97            	ld	xl,a
- 625  0008 a604          	ld	a,#4
- 626  000a 42            	mul	x,a
- 627  000b 1c0000        	addw	x,#L5_Receivers
- 628  000e cd0000        	call	c_ltor
- 630  0011 ae0015        	ldw	x,#L7_BtoDW
- 631  0014 cd0000        	call	c_lcmp
- 633  0017 260c          	jrne	L712
- 634                     ; 268       flag_IDfound = TRUE;
- 636  0019 a601          	ld	a,#1
- 637  001b 6b01          	ld	(OFST-1,sp),a
- 638                     ; 269       break;
- 639  001d               L512:
- 640                     ; 272   return flag_IDfound;
- 642  001d 7b01          	ld	a,(OFST-1,sp)
- 643  001f 2702          	jreq	L26
- 644  0021 a601          	ld	a,#1
- 645  0023               L26:
- 648  0023 85            	popw	x
- 649  0024 81            	ret	
- 650  0025               L712:
- 651                     ; 264   for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
- 653  0025 0c02          	inc	(OFST+0,sp)
- 654  0027               L312:
- 657  0027 7b02          	ld	a,(OFST+0,sp)
- 658  0029 c10028        	cp	a,L5_Receivers+40
- 659  002c 25d9          	jrult	L702
- 660  002e 20ed          	jra	L512
- 712                     ; 275 void LearnNewID()
- 712                     ; 276 {
- 713                     .text:	section	.text,new
- 714  0000               _LearnNewID:
- 716  0000 89            	pushw	x
- 717       00000002      OFST:	set	2
- 720                     ; 279   _Bool flag_IDfound = FALSE;
- 722  0001 0f01          	clr	(OFST-1,sp)
- 723                     ; 280   for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
- 725  0003 0f02          	clr	(OFST+0,sp)
- 727  0005 2068          	jra	L742
- 728  0007               L342:
- 729                     ; 282     if( BtoDW.DW == (*(u32*)(&(Receivers.ID[i]))) )
- 731  0007 97            	ld	xl,a
- 732  0008 a604          	ld	a,#4
- 733  000a 42            	mul	x,a
- 734  000b cd0092        	call	LC006
- 736  000e 265d          	jrne	L352
- 737                     ; 284       flag_IDfound = TRUE;
- 739  0010 a601          	ld	a,#1
- 740  0012 6b01          	ld	(OFST-1,sp),a
- 741                     ; 285       break;
- 742  0014               L152:
- 743                     ; 288   if(!flag_IDfound)
- 745  0014 7b01          	ld	a,(OFST-1,sp)
- 746  0016 2660          	jrne	L552
- 747                     ; 291     FLASH_Unlock(FLASH_MemType_Program);
- 749  0018 a6fd          	ld	a,#253
- 750  001a cd0000        	call	_FLASH_Unlock
- 752                     ; 292     FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+0, (u8)BtoDW.B.b0 );
- 754  001d 3b0015        	push	L7_BtoDW
- 755  0020 ad68          	call	LC005
- 756  0022 1c0000        	addw	x,#L5_Receivers
- 757  0025 cd0000        	call	_FLASH_ProgramByte
- 759  0028 84            	pop	a
- 760                     ; 293     FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+1, (u8)BtoDW.B.b1 );
- 762  0029 3b0016        	push	L7_BtoDW+1
- 763  002c ad5c          	call	LC005
- 764  002e 1c0001        	addw	x,#L5_Receivers+1
- 765  0031 cd0000        	call	_FLASH_ProgramByte
- 767  0034 84            	pop	a
- 768                     ; 294     FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+2, (u8)BtoDW.B.b2 );
- 770  0035 3b0017        	push	L7_BtoDW+2
- 771  0038 ad50          	call	LC005
- 772  003a 1c0002        	addw	x,#L5_Receivers+2
- 773  003d cd0000        	call	_FLASH_ProgramByte
- 775  0040 84            	pop	a
- 776                     ; 295     FLASH_ProgramByte( (u16)(u8*)((&Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv)))]))+3, (u8)BtoDW.B.b3 );
- 778  0041 3b0018        	push	L7_BtoDW+3
- 779  0044 ad44          	call	LC005
- 780  0046 1c0003        	addw	x,#L5_Receivers+3
- 781  0049 cd0000        	call	_FLASH_ProgramByte
- 783  004c 84            	pop	a
- 784                     ; 296     FLASH_ProgramByte( (u16)(u8*)(&Receivers.NumLrndRcv), (u8)(*(u8*)(&(Receivers.NumLrndRcv))+1) );
- 786  004d c60028        	ld	a,L5_Receivers+40
- 787  0050 4c            	inc	a
- 788  0051 88            	push	a
- 789  0052 ae0028        	ldw	x,#L5_Receivers+40
- 790  0055 cd0000        	call	_FLASH_ProgramByte
- 792  0058 84            	pop	a
- 793                     ; 297     FLASH_Lock(FLASH_MemType_Program);
- 795  0059 a6fd          	ld	a,#253
- 796  005b cd0000        	call	_FLASH_Lock
- 798                     ; 299     if( BtoDW.DW != (*(u32*)(&(Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv))) - 1]))) )
- 800  005e ad2a          	call	LC005
- 801  0060 1d0004        	subw	x,#4
- 802  0063 ad2d          	call	LC006
- 804  0065 2711          	jreq	L552
- 805                     ; 301       Errors_SetError(ERROR_FLASH_WRITE);
- 807  0067 4f            	clr	a
- 808  0068 cd0000        	call	_Errors_SetError
- 810  006b 200b          	jra	L552
- 811  006d               L352:
- 812                     ; 280   for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
- 814  006d 0c02          	inc	(OFST+0,sp)
- 815  006f               L742:
- 818  006f 7b02          	ld	a,(OFST+0,sp)
- 819  0071 c10028        	cp	a,L5_Receivers+40
- 820  0074 2591          	jrult	L342
- 821  0076 209c          	jra	L152
- 822  0078               L552:
- 823                     ; 304   LrnModeActive = FALSE;
- 825  0078 72110000      	bres	L11_LrnModeActive
- 826                     ; 305   BLINKSTOP_GREENLED;
- 828  007c 72110000      	bres	_flag_blink_greenLED
- 831  0080 7217500a      	bres	20490,#3
- 834  0084 7219500a      	bres	20490,#4
- 835                     ; 306 }
- 840  0088 85            	popw	x
- 841  0089 81            	ret	
- 842  008a               LC005:
- 843  008a c60028        	ld	a,L5_Receivers+40
- 844  008d 97            	ld	xl,a
- 845  008e a604          	ld	a,#4
- 846  0090 42            	mul	x,a
- 847  0091 81            	ret	
- 848  0092               LC006:
- 849  0092 1c0000        	addw	x,#L5_Receivers
- 850  0095 cd0000        	call	c_ltor
- 852  0098 ae0015        	ldw	x,#L7_BtoDW
- 853  009b cc0000        	jp	c_lcmp
- 915                     ; 308 void BTN1_Released()
- 915                     ; 309 {
- 916                     .text:	section	.text,new
- 917  0000               _BTN1_Released:
- 919  0000 5203          	subw	sp,#3
- 920       00000003      OFST:	set	3
- 923                     ; 310   if(BTN1_press_timer < BTN1_DELETE_ID_THR)
- 925  0002 be00          	ldw	x,_BTN1_press_timer
- 926  0004 a30bb8        	cpw	x,#3000
- 927  0007 245e          	jruge	L303
- 928                     ; 313     if(!Errors_IsError())
- 930  0009 cd0000        	call	_Errors_IsError
- 932  000c 4d            	tnz	a
- 933  000d 2703cc00c9    	jrne	L713
- 934                     ; 315       if(!LrnModeActive)
- 936  0012 7200000046    	btjt	L11_LrnModeActive,L703
- 937                     ; 317         if((*(u8*)(&Receivers.NumLrndRcv)) < 10)
- 939  0017 c60028        	ld	a,L5_Receivers+40
- 940  001a a10a          	cp	a,#10
- 941  001c 2422          	jruge	L113
- 942                     ; 319           LrnModeActive = TRUE;
- 944  001e 72100000      	bset	L11_LrnModeActive
- 945                     ; 320           BLINK_GREENLED(255);
- 947  0022 35ff0000      	mov	_blink_greenLED_times,#255
- 950  0026 72100000      	bset	_flag_blink_unlimited
- 955  002a 5f            	clrw	x
- 956  002b 72100000      	bset	_flag_blink_on_off
- 957  002f bf00          	ldw	_cnt_state_greenLED,x
- 960  0031 7217500a      	bres	20490,#3
- 963  0035 7218500a      	bset	20490,#4
- 967  0039 72100000      	bset	_flag_blink_greenLED
- 970  003d cc00c9        	jra	L713
- 971  0040               L113:
- 972                     ; 324           BLINK_REDLED(2);
- 974  0040 35020000      	mov	_blink_redLED_times,#2
- 977  0044 72110000      	bres	_flag_blink_unlimited
- 982  0048 5f            	clrw	x
- 983  0049 72100000      	bset	_flag_blink_on_off
- 984  004d bf00          	ldw	_cnt_state_redLED,x
- 987  004f 7216500a      	bset	20490,#3
- 990  0053 7219500a      	bres	20490,#4
- 994  0057 72100000      	bset	_flag_blink_redLED
- 996  005b 206c          	jra	L713
- 997  005d               L703:
- 998                     ; 329         LrnModeActive = FALSE;
-1000  005d 72110000      	bres	L11_LrnModeActive
-1001                     ; 330         BLINKSTOP_GREENLED;
-1003  0061 72110000      	bres	_flag_blink_greenLED
-1008  0065 205a          	jp	LC007
-1009  0067               L303:
-1010                     ; 339     LED_RED_ON;
-1012  0067 7216500a      	bset	20490,#3
-1015  006b 7219500a      	bres	20490,#4
-1016                     ; 340     flash_erase_timing_test = 1;
-1019  006f 35010014      	mov	L14_flash_erase_timing_test,#1
-1020                     ; 341     FLASH_Unlock(FLASH_MemType_Program);
-1022  0073 a6fd          	ld	a,#253
-1023  0075 cd0000        	call	_FLASH_Unlock
-1025                     ; 342     adr = (u8*)&Receivers;
-1027  0078 ae0000        	ldw	x,#L5_Receivers
-1028  007b 1f01          	ldw	(OFST-2,sp),x
-1029                     ; 343     for(i = 0; i < sizeof(Receivers); i++)
-1031  007d 0f03          	clr	(OFST+0,sp)
-1032  007f               L123:
-1033                     ; 345       FLASH_EraseByte((u16)(adr++));
-1035  007f 1e01          	ldw	x,(OFST-2,sp)
-1036  0081 5c            	incw	x
-1037  0082 1f01          	ldw	(OFST-2,sp),x
-1038  0084 5a            	decw	x
-1039  0085 cd0000        	call	_FLASH_EraseByte
-1041                     ; 343     for(i = 0; i < sizeof(Receivers); i++)
-1043  0088 0c03          	inc	(OFST+0,sp)
-1046  008a 7b03          	ld	a,(OFST+0,sp)
-1047  008c a129          	cp	a,#41
-1048  008e 25ef          	jrult	L123
-1049                     ; 347     FLASH_Lock(FLASH_MemType_Program);
-1051  0090 a6fd          	ld	a,#253
-1052  0092 cd0000        	call	_FLASH_Lock
-1054                     ; 348     flash_erase_timing_test = 2;
-1056  0095 35020014      	mov	L14_flash_erase_timing_test,#2
-1057                     ; 350     Errors_ResetError(ERROR_FLASH_ERASE);
-1059  0099 a601          	ld	a,#1
-1060  009b cd0000        	call	_Errors_ResetError
-1062                     ; 351     adr = (u8*)&Receivers;
-1064  009e ae0000        	ldw	x,#L5_Receivers
-1065  00a1 1f01          	ldw	(OFST-2,sp),x
-1066                     ; 352     for(i = 0; i < sizeof(Receivers); i++)
-1068  00a3 0f03          	clr	(OFST+0,sp)
-1069  00a5               L723:
-1070                     ; 354       if(*(adr++))
-1072  00a5 1e01          	ldw	x,(OFST-2,sp)
-1073  00a7 5c            	incw	x
-1074  00a8 1f01          	ldw	(OFST-2,sp),x
-1075  00aa 5a            	decw	x
-1076  00ab f6            	ld	a,(x)
-1077  00ac 2707          	jreq	L533
-1078                     ; 356         Errors_SetError(ERROR_FLASH_ERASE);
-1080  00ae a601          	ld	a,#1
-1081  00b0 cd0000        	call	_Errors_SetError
-1083                     ; 357         break;
-1085  00b3 2008          	jra	L333
-1086  00b5               L533:
-1087                     ; 352     for(i = 0; i < sizeof(Receivers); i++)
-1089  00b5 0c03          	inc	(OFST+0,sp)
-1092  00b7 7b03          	ld	a,(OFST+0,sp)
-1093  00b9 a129          	cp	a,#41
-1094  00bb 25e8          	jrult	L723
-1095  00bd               L333:
-1096                     ; 360     flash_erase_timing_test = 3;
-1098  00bd 35030014      	mov	L14_flash_erase_timing_test,#3
-1099                     ; 361     LED_OFF;
-1103  00c1               LC007:
-1105  00c1 7217500a      	bres	20490,#3
-1107  00c5 7219500a      	bres	20490,#4
-1108  00c9               L713:
-1109                     ; 363   BTN1_press_timer = 0;
-1111  00c9 5f            	clrw	x
-1112  00ca bf00          	ldw	_BTN1_press_timer,x
-1113                     ; 364 }
-1116  00cc 5b03          	addw	sp,#3
-1117  00ce 81            	ret	
-1141                     ; 366 void TASK_1000ms()
-1141                     ; 367 {
-1142                     .text:	section	.text,new
-1143  0000               _TASK_1000ms:
-1147                     ; 368   task_1000ms_cnt++;
-1149  0000 3c06          	inc	L53_task_1000ms_cnt
-1150                     ; 369 }
-1153  0002 81            	ret	
-1177                     ; 371 void TASK_500ms()
-1177                     ; 372 {
-1178                     .text:	section	.text,new
-1179  0000               _TASK_500ms:
-1183                     ; 373   flash_erase_timing_test = 0;
-1185  0000 3f14          	clr	L14_flash_erase_timing_test
-1186                     ; 374 }
-1189  0002 81            	ret	
-1545                     	xdef	_main
-1546                     	switch	.ubsct
-1547  0000               _runtime_it_RFrcv:
-1548  0000 000000000000  	ds.b	10
-1549                     	xdef	_runtime_it_RFrcv
-1550  000a               _runtime_it_1ms:
-1551  000a 000000000000  	ds.b	10
-1552                     	xdef	_runtime_it_1ms
-1553                     	xdef	_IsLearnedID
-1554                     	xdef	_LearnNewID
-1555                     	xdef	_BTN1_Released
-1556                     	xdef	_TASK_500ms
-1557                     	xdef	_TASK_1000ms
-1558  0014               L14_flash_erase_timing_test:
-1559  0014 00            	ds.b	1
-1560  0015               L7_BtoDW:
-1561  0015 00000000      	ds.b	4
-1562                     .const:	section	.text
-1563  0000               L5_Receivers:
-1564  0000 000000000000  	ds.b	41
-1565                     	xref	_Timeout_IsTimeout2
-1566                     	xref	_Timeout_IsTimeout1
-1567                     	xref	_Timeout_SetTimeout2
-1568                     	xref	_Timeout_SetTimeout1
-1569                     	xref.b	_RFbytesReady
-1570                     	xref.b	_RcvRFmsg
-1571                     	xbit	_flag_blink_unlimited
-1572                     	xbit	_flag_blink_greenLED
-1573                     	xbit	_flag_blink_redLED
-1574                     	xbit	_flag_blink_on_off
-1575                     	xref.b	_cnt_state_greenLED
-1576                     	xref.b	_cnt_state_redLED
-1577                     	xref.b	_blink_greenLED_times
-1578                     	xref.b	_blink_redLED_times
-1579                     	xbit	_FLAG_1000ms
-1580                     	xbit	_FLAG_500ms
-1581                     	xref.b	_BTN1_press_timer
-1582                     	xref.b	_BTN1_DEB_STATE
-1583                     	xref	_Errors_IsError
-1584                     	xref	_Errors_ResetError
-1585                     	xref	_Errors_SetError
-1586                     	xref	_Errors_Init
-1587                     	xref	_Config
-1588                     	xref	_RST_ClearFlag
-1589                     	xref	_RST_GetFlagStatus
-1590                     	xref	_IWDG_Enable
-1591                     	xref	_IWDG_ReloadCounter
-1592                     	xref	_IWDG_SetReload
-1593                     	xref	_IWDG_SetPrescaler
-1594                     	xref	_IWDG_WriteAccessCmd
-1595                     	xref	_FLASH_EraseByte
-1596                     	xref	_FLASH_ProgramByte
-1597                     	xref	_FLASH_Lock
-1598                     	xref	_FLASH_Unlock
-1618                     	xref	c_lcmp
-1619                     	xref	c_ltor
-1620                     	end
+ 110                     ; 119 void main(void)
+ 110                     ; 120 {
+ 112                     .text:	section	.text,new
+ 113  0000               _main:
+ 117                     ; 121   flash_erase_timing_test = 0;
+ 119  0000 3f14          	clr	L14_flash_erase_timing_test
+ 120                     ; 122   program_status = 1;
+ 122  0002 35010003      	mov	L52_program_status,#1
+ 123                     ; 123   disableInterrupts();
+ 126  0006 9b            	sim	
+ 128                     ; 124   Config();
+ 131  0007 cd0000        	call	_Config
+ 133                     ; 125   program_status = 2;
+ 135  000a 35020003      	mov	L52_program_status,#2
+ 136                     ; 126   Errors_Init();
+ 138  000e cd0000        	call	_Errors_Init
+ 140                     ; 127   RTMS_INIT(runtime_it_1ms);
+ 142  0011 aeffff        	ldw	x,#65535
+ 143  0014 bf0a          	ldw	_runtime_it_1ms,x
+ 146  0016 5f            	clrw	x
+ 147  0017 bf0c          	ldw	_runtime_it_1ms+2,x
+ 150  0019 bf0e          	ldw	_runtime_it_1ms+4,x
+ 153  001b bf12          	ldw	_runtime_it_1ms+8,x
+ 156  001d bf10          	ldw	_runtime_it_1ms+6,x
+ 157                     ; 128   RTMS_INIT(runtime_it_RFrcv);
+ 160  001f 5a            	decw	x
+ 161  0020 bf00          	ldw	_runtime_it_RFrcv,x
+ 164  0022 5f            	clrw	x
+ 165  0023 bf02          	ldw	_runtime_it_RFrcv+2,x
+ 168  0025 bf04          	ldw	_runtime_it_RFrcv+4,x
+ 171  0027 bf08          	ldw	_runtime_it_RFrcv+8,x
+ 174  0029 bf06          	ldw	_runtime_it_RFrcv+6,x
+ 175                     ; 129   enableInterrupts();
+ 179  002b 9a            	rim	
+ 181                     ; 130   LED_GREEN_ON;
+ 184  002c 7217500a      	bres	20490,#3
+ 187  0030 7218500a      	bset	20490,#4
+ 188                     ; 132   Timeout_SetTimeout2(200);
+ 191  0034 ae00c8        	ldw	x,#200
+ 192  0037 cd0000        	call	_Timeout_SetTimeout2
+ 195  003a               L501:
+ 196                     ; 133   while(!Timeout_IsTimeout2());
+ 198  003a cd0000        	call	_Timeout_IsTimeout2
+ 200  003d 4d            	tnz	a
+ 201  003e 27fa          	jreq	L501
+ 202                     ; 134   LED_OFF;
+ 204  0040 7217500a      	bres	20490,#3
+ 207  0044 7219500a      	bres	20490,#4
+ 208                     ; 135   program_status = 3;
+ 211  0048 35030003      	mov	L52_program_status,#3
+ 212                     ; 136   if(RST_GetFlagStatus(RST_FLAG_IWDGF))
+ 214  004c a602          	ld	a,#2
+ 215  004e cd0000        	call	_RST_GetFlagStatus
+ 217  0051 4d            	tnz	a
+ 218  0052 2706          	jreq	L111
+ 219                     ; 138     BLINK_REDLED(1);
+ 221  0054 35010000      	mov	_blink_redLED_times,#1
+ 231  0058 200c          	jp	LC001
+ 232  005a               L111:
+ 233                     ; 140   else if(RST_GetFlagStatus(RST_FLAG_ILLOPF))
+ 235  005a a604          	ld	a,#4
+ 236  005c cd0000        	call	_RST_GetFlagStatus
+ 238  005f 4d            	tnz	a
+ 239  0060 270b          	jreq	L311
+ 240                     ; 142     BLINK_REDLED(2);
+ 242  0062 35020000      	mov	_blink_redLED_times,#2
+ 256  0066               LC001:
+ 258  0066 72110000      	bres	_flag_blink_unlimited
+ 261  006a cd018b        	call	LC004
+ 263  006d               L311:
+ 264                     ; 144   RST_ClearFlag(RST_FLAG_POR_PDR | RST_FLAG_SWIMF | RST_FLAG_ILLOPF | RST_FLAG_IWDGF);
+ 266  006d a60f          	ld	a,#15
+ 267  006f cd0000        	call	_RST_ClearFlag
+ 270  0072               L121:
+ 271                     ; 145   while(ISBLINKING_REDLED);
+ 273  0072 72000000fb    	btjt	_flag_blink_redLED,L121
+ 274                     ; 146   program_status = 4;
+ 276  0077 35040003      	mov	L52_program_status,#4
+ 277                     ; 147   HBRIDGE_OFF;
+ 279  007b cd0175        	call	LC003
+ 281                     ; 150   IWDG_Enable();
+ 283  007e cd0000        	call	_IWDG_Enable
+ 285                     ; 151   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+ 287  0081 a655          	ld	a,#85
+ 288  0083 cd0000        	call	_IWDG_WriteAccessCmd
+ 290                     ; 152   IWDG_SetPrescaler(IWDG_Prescaler_64);  /* 431.15ms for RL[7:0]= 0xFF */
+ 292  0086 a604          	ld	a,#4
+ 293  0088 cd0000        	call	_IWDG_SetPrescaler
+ 295                     ; 153   IWDG_SetReload(0xFF);
+ 297  008b a6ff          	ld	a,#255
+ 298  008d cd0000        	call	_IWDG_SetReload
+ 300                     ; 154   IWDG_WriteAccessCmd(IWDG_WriteAccess_Disable);
+ 302  0090 4f            	clr	a
+ 303  0091 cd0000        	call	_IWDG_WriteAccessCmd
+ 305                     ; 155   IWDG_ReloadCounter();
+ 307  0094 cd0000        	call	_IWDG_ReloadCounter
+ 309                     ; 156   program_status = 5;
+ 311  0097 35050003      	mov	L52_program_status,#5
+ 312  009b               L521:
+ 313                     ; 159     switch(state)
+ 315  009b b602          	ld	a,L32_state
+ 317                     ; 235       default: break;
+ 318  009d 2603cc013a    	jreq	LC002
+ 319  00a2 4a            	dec	a
+ 320  00a3 270d          	jreq	L54
+ 321  00a5 a002          	sub	a,#2
+ 322  00a7 2739          	jreq	L74
+ 323  00a9 4a            	dec	a
+ 324  00aa 276e          	jreq	L75
+ 325  00ac 4a            	dec	a
+ 326  00ad 2777          	jreq	L16
+ 327  00af cc013e        	jra	L331
+ 328                     ; 163         state = ST_WAIT_INPUT_OR_FLAG;
+ 329                     ; 164         break;
+ 331  00b2               L54:
+ 332                     ; 168         if(RFbytesReady)
+ 334  00b2 3d00          	tnz	_RFbytesReady
+ 335  00b4 2706          	jreq	L531
+ 336                     ; 170           RFbytesReady = FALSE;
+ 338  00b6 b700          	ld	_RFbytesReady,a
+ 339                     ; 171           state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
+ 341  00b8 35040002      	mov	L32_state,#4
+ 342  00bc               L531:
+ 343                     ; 173         if(FLAG_1000ms)
+ 345  00bc 7201000004    	btjf	_FLAG_1000ms,L731
+ 346                     ; 175           FLAG_1000ms = FALSE;
+ 348  00c1 72110000      	bres	_FLAG_1000ms
+ 349  00c5               L731:
+ 350                     ; 178         if(BTN1_DEB_STATE == BTN_PRESSED && !FLAG_BTN1_lock)
+ 352  00c5 b600          	ld	a,_BTN1_DEB_STATE
+ 353  00c7 4a            	dec	a
+ 354  00c8 2609          	jrne	L141
+ 356  00ca 7200000104    	btjt	L31_FLAG_BTN1_lock,L141
+ 357                     ; 180           FLAG_BTN1_lock = TRUE;
+ 359  00cf 72100001      	bset	L31_FLAG_BTN1_lock
+ 360  00d3               L141:
+ 361                     ; 182         if(BTN1_DEB_STATE == BTN_DEPRESSED && FLAG_BTN1_lock)
+ 363  00d3 b600          	ld	a,_BTN1_DEB_STATE
+ 364  00d5 2667          	jrne	L331
+ 366  00d7 7201000162    	btjf	L31_FLAG_BTN1_lock,L331
+ 367                     ; 184           FLAG_BTN1_lock = FALSE;
+ 369  00dc 72110001      	bres	L31_FLAG_BTN1_lock
+ 370  00e0 205c          	jra	L331
+ 371  00e2               L74:
+ 372                     ; 193         LED_GREEN_ON;
+ 374  00e2 7217500a      	bres	20490,#3
+ 377  00e6 7218500a      	bset	20490,#4
+ 378                     ; 194         switch(RcvRFmsg.RFmsgmember.RFcmd)
+ 381  00ea b603          	ld	a,_RcvRFmsg+3
+ 383                     ; 208           default: break;
+ 384  00ec a00f          	sub	a,#15
+ 385  00ee 2706          	jreq	L15
+ 386  00f0 a0e1          	sub	a,#225
+ 387  00f2 2710          	jreq	L35
+ 388  00f4 2018          	jra	L741
+ 389  00f6               L15:
+ 390                     ; 198             LIGHT_ON;
+ 392  00f6 72155005      	bres	20485,#2
+ 395  00fa 72105005      	bset	20485,#0
+ 396                     ; 199             LightState = LIGHTSTATE_ON;
+ 399  00fe 35010000      	mov	L3_LightState,#1
+ 400                     ; 200             break;
+ 402  0102 200a          	jra	L741
+ 403  0104               L35:
+ 404                     ; 204             LIGHT_OFF;
+ 406  0104 7211500f      	bres	20495,#0
+ 409  0108 7214500a      	bset	20490,#2
+ 410                     ; 205             LightState = LIGHTSTATE_OFF;
+ 413  010c b700          	ld	L3_LightState,a
+ 414                     ; 206             break;
+ 416                     ; 208           default: break;
+ 418  010e               L741:
+ 419                     ; 211         Timeout_SetTimeout1(HBRIDGE_ON_TIME);
+ 421  010e ae0064        	ldw	x,#100
+ 422  0111 cd0000        	call	_Timeout_SetTimeout1
+ 424                     ; 212         state = ST_WAIT_TIMEOUT1_HBRIDGE_ON;
+ 426  0114 35050002      	mov	L32_state,#5
+ 427                     ; 213         break;
+ 429  0118 2024          	jra	L331
+ 430  011a               L75:
+ 431                     ; 217         if(Timeout_IsTimeout1())
+ 433  011a cd0000        	call	_Timeout_IsTimeout1
+ 435  011d 4d            	tnz	a
+ 436  011e 271e          	jreq	L331
+ 437                     ; 219           state = ST_SWITCH_LIGHT;
+ 439  0120 35030002      	mov	L32_state,#3
+ 440  0124 2018          	jra	L331
+ 441  0126               L16:
+ 442                     ; 225         if(Timeout_IsTimeout1())
+ 444  0126 cd0000        	call	_Timeout_IsTimeout1
+ 446  0129 4d            	tnz	a
+ 447  012a 2712          	jreq	L331
+ 448                     ; 227           HBRIDGE_OFF;
+ 450  012c ad47          	call	LC003
+ 452                     ; 230           BLINKSTOP_GREENLED;
+ 454  012e 72110000      	bres	_flag_blink_greenLED
+ 457  0132 7217500a      	bres	20490,#3
+ 460  0136 7219500a      	bres	20490,#4
+ 461                     ; 231           state = ST_WAIT_INPUT_OR_FLAG;
+ 465  013a               LC002:
+ 467  013a 35010002      	mov	L32_state,#1
+ 468                     ; 235       default: break;
+ 470  013e               L331:
+ 471                     ; 237     IWDG_ReloadCounter();
+ 473  013e cd0000        	call	_IWDG_ReloadCounter
+ 475                     ; 238     if(Errors_IsError() && !FLAG_reset_LEDblink_error)
+ 477  0141 cd0000        	call	_Errors_IsError
+ 479  0144 4d            	tnz	a
+ 480  0145 2716          	jreq	L551
+ 482  0147 7200000211    	btjt	L51_FLAG_reset_LEDblink_error,L551
+ 483                     ; 240       BLINK_REDLED(255);
+ 485  014c 35ff0000      	mov	_blink_redLED_times,#255
+ 488  0150 72100000      	bset	_flag_blink_unlimited
+ 493  0154 ad35          	call	LC004
+ 494                     ; 241       FLAG_reset_LEDblink_error = TRUE;
+ 497  0156 72100002      	bset	L51_FLAG_reset_LEDblink_error
+ 499  015a cc009b        	jra	L521
+ 500  015d               L551:
+ 501                     ; 245       if(FLAG_reset_LEDblink_error)
+ 503  015d 72010002f8    	btjf	L51_FLAG_reset_LEDblink_error,L521
+ 504                     ; 247         BLINKSTOP_REDLED;
+ 506  0162 72110000      	bres	_flag_blink_redLED
+ 509  0166 7217500a      	bres	20490,#3
+ 512  016a 7219500a      	bres	20490,#4
+ 513                     ; 248         FLAG_reset_LEDblink_error = FALSE;
+ 517  016e 72110002      	bres	L51_FLAG_reset_LEDblink_error
+ 518  0172 cc009b        	jra	L521
+ 519  0175               LC003:
+ 520  0175 7210500f      	bset	20495,#0
+ 521                     ; 147   HBRIDGE_OFF;
+ 523  0179 72145005      	bset	20485,#2
+ 526  017d 72115005      	bres	20485,#0
+ 529  0181 7215500a      	bres	20490,#2
+ 530                     ; 148   Timeout_SetTimeout1(HBRIDGE_CHARGE_TIME);
+ 533  0185 ae03e8        	ldw	x,#1000
+ 534  0188 cc0000        	jp	_Timeout_SetTimeout1
+ 535  018b               LC004:
+ 536  018b 5f            	clrw	x
+ 537  018c 72100000      	bset	_flag_blink_on_off
+ 538  0190 bf00          	ldw	_cnt_state_redLED,x
+ 540  0192 7216500a      	bset	20490,#3
+ 542  0196 7219500a      	bres	20490,#4
+ 544  019a 72100000      	bset	_flag_blink_redLED
+ 545  019e 81            	ret	
+ 592                     ; 254 _Bool IsLearnedID()
+ 592                     ; 255 {
+ 593                     .text:	section	.text,new
+ 594  0000               _IsLearnedID:
+ 596  0000 89            	pushw	x
+ 597       00000002      OFST:	set	2
+ 600                     ; 257   _Bool flag_IDfound = FALSE;
+ 602  0001 0f01          	clr	(OFST-1,sp)
+ 603                     ; 258   for(i = 0; i < Receivers.NumLrndRcv; i++)
+ 605  0003 0f02          	clr	(OFST+0,sp)
+ 607  0005 2019          	jra	L112
+ 608  0007               L502:
+ 609                     ; 260     if(RcvRFmsg.RFmsgmember.RFNodeId == Receivers.ID[i])
+ 611  0007 7b02          	ld	a,(OFST+0,sp)
+ 612  0009 5f            	clrw	x
+ 613  000a 97            	ld	xl,a
+ 614  000b d60000        	ld	a,(L5_Receivers,x)
+ 615  000e b102          	cp	a,_RcvRFmsg+2
+ 616  0010 260c          	jrne	L512
+ 617                     ; 262       flag_IDfound = TRUE;
+ 619  0012 a601          	ld	a,#1
+ 620  0014 6b01          	ld	(OFST-1,sp),a
+ 621                     ; 263       break;
+ 622  0016               L312:
+ 623                     ; 266   return flag_IDfound;
+ 625  0016 7b01          	ld	a,(OFST-1,sp)
+ 626  0018 2702          	jreq	L06
+ 627  001a a601          	ld	a,#1
+ 628  001c               L06:
+ 631  001c 85            	popw	x
+ 632  001d 81            	ret	
+ 633  001e               L512:
+ 634                     ; 258   for(i = 0; i < Receivers.NumLrndRcv; i++)
+ 636  001e 0c02          	inc	(OFST+0,sp)
+ 637  0020               L112:
+ 640  0020 c6000a        	ld	a,L5_Receivers+10
+ 641  0023 1102          	cp	a,(OFST+0,sp)
+ 642  0025 22e0          	jrugt	L502
+ 643  0027 20ed          	jra	L312
+ 696                     ; 269 void LearnNewID()
+ 696                     ; 270 {
+ 697                     .text:	section	.text,new
+ 698  0000               _LearnNewID:
+ 700  0000 89            	pushw	x
+ 701       00000002      OFST:	set	2
+ 704                     ; 273   _Bool flag_IDfound = FALSE;
+ 706  0001 0f01          	clr	(OFST-1,sp)
+ 707                     ; 274   for(i = 0; i < Receivers.NumLrndRcv; i++)
+ 709  0003 0f02          	clr	(OFST+0,sp)
+ 711  0005 2054          	jra	L542
+ 712  0007               L142:
+ 713                     ; 276     if( RcvRFmsg.RFmsgmember.RFNodeId == Receivers.ID[i])
+ 715  0007 7b02          	ld	a,(OFST+0,sp)
+ 716  0009 5f            	clrw	x
+ 717  000a 97            	ld	xl,a
+ 718  000b d60000        	ld	a,(L5_Receivers,x)
+ 719  000e b102          	cp	a,_RcvRFmsg+2
+ 720  0010 2647          	jrne	L152
+ 721                     ; 278       flag_IDfound = TRUE;
+ 723  0012 a601          	ld	a,#1
+ 724  0014 6b01          	ld	(OFST-1,sp),a
+ 725                     ; 279       break;
+ 726  0016               L742:
+ 727                     ; 282   if(!flag_IDfound)
+ 729  0016 7b01          	ld	a,(OFST-1,sp)
+ 730  0018 264a          	jrne	L352
+ 731                     ; 285     FLASH_Unlock(FLASH_MemType_Program);
+ 733  001a a6fd          	ld	a,#253
+ 734  001c cd0000        	call	_FLASH_Unlock
+ 736                     ; 286     FLASH_ProgramByte( (u16)(u8*)(&Receivers.ID[Receivers.NumLrndRcv]), (u8)RcvRFmsg.RFmsgmember.RFNodeId );
+ 738  001f 3b0002        	push	_RcvRFmsg+2
+ 739  0022 c6000a        	ld	a,L5_Receivers+10
+ 740  0025 5f            	clrw	x
+ 741  0026 97            	ld	xl,a
+ 742  0027 1c0000        	addw	x,#L5_Receivers
+ 743  002a cd0000        	call	_FLASH_ProgramByte
+ 745  002d 84            	pop	a
+ 746                     ; 287     FLASH_ProgramByte( (u16)(u8*)(&Receivers.NumLrndRcv), Receivers.NumLrndRcv + 1);
+ 748  002e c6000a        	ld	a,L5_Receivers+10
+ 749  0031 4c            	inc	a
+ 750  0032 88            	push	a
+ 751  0033 ae000a        	ldw	x,#L5_Receivers+10
+ 752  0036 cd0000        	call	_FLASH_ProgramByte
+ 754  0039 84            	pop	a
+ 755                     ; 288     FLASH_Lock(FLASH_MemType_Program);
+ 757  003a a6fd          	ld	a,#253
+ 758  003c cd0000        	call	_FLASH_Lock
+ 760                     ; 290     if( BtoDW.DW != (*(u32*)(&(Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv))) - 1]))) )
+ 762  003f c6000a        	ld	a,L5_Receivers+10
+ 763  0042 5f            	clrw	x
+ 764  0043 97            	ld	xl,a
+ 765  0044 5a            	decw	x
+ 766  0045 1c0000        	addw	x,#L5_Receivers
+ 767  0048 cd0000        	call	c_ltor
+ 769  004b ae0015        	ldw	x,#L7_BtoDW
+ 770  004e cd0000        	call	c_lcmp
+ 772  0051 2711          	jreq	L352
+ 773                     ; 292       Errors_SetError(ERROR_FLASH_WRITE);
+ 775  0053 4f            	clr	a
+ 776  0054 cd0000        	call	_Errors_SetError
+ 778  0057 200b          	jra	L352
+ 779  0059               L152:
+ 780                     ; 274   for(i = 0; i < Receivers.NumLrndRcv; i++)
+ 782  0059 0c02          	inc	(OFST+0,sp)
+ 783  005b               L542:
+ 786  005b c6000a        	ld	a,L5_Receivers+10
+ 787  005e 1102          	cp	a,(OFST+0,sp)
+ 788  0060 22a5          	jrugt	L142
+ 789  0062 20b2          	jra	L742
+ 790  0064               L352:
+ 791                     ; 295   LrnModeActive = FALSE;
+ 793  0064 72110000      	bres	L11_LrnModeActive
+ 794                     ; 296   BLINKSTOP_GREENLED;
+ 796  0068 72110000      	bres	_flag_blink_greenLED
+ 799  006c 7217500a      	bres	20490,#3
+ 802  0070 7219500a      	bres	20490,#4
+ 803                     ; 297 }
+ 808  0074 85            	popw	x
+ 809  0075 81            	ret	
+ 871                     ; 299 void BTN1_Released()
+ 871                     ; 300 {
+ 872                     .text:	section	.text,new
+ 873  0000               _BTN1_Released:
+ 875  0000 5203          	subw	sp,#3
+ 876       00000003      OFST:	set	3
+ 879                     ; 301   if(BTN1_press_timer < BTN1_DELETE_ID_THR)
+ 881  0002 be00          	ldw	x,_BTN1_press_timer
+ 882  0004 a30bb8        	cpw	x,#3000
+ 883  0007 245e          	jruge	L103
+ 884                     ; 304     if(!Errors_IsError())
+ 886  0009 cd0000        	call	_Errors_IsError
+ 888  000c 4d            	tnz	a
+ 889  000d 2703cc00c9    	jrne	L513
+ 890                     ; 306       if(!LrnModeActive)
+ 892  0012 7200000046    	btjt	L11_LrnModeActive,L503
+ 893                     ; 308         if(Receivers.NumLrndRcv < MAX_NUM_RECEIVERS)
+ 895  0017 c6000a        	ld	a,L5_Receivers+10
+ 896  001a a10a          	cp	a,#10
+ 897  001c 2422          	jruge	L703
+ 898                     ; 310           LrnModeActive = TRUE;
+ 900  001e 72100000      	bset	L11_LrnModeActive
+ 901                     ; 311           BLINK_GREENLED(255);
+ 903  0022 35ff0000      	mov	_blink_greenLED_times,#255
+ 906  0026 72100000      	bset	_flag_blink_unlimited
+ 911  002a 5f            	clrw	x
+ 912  002b 72100000      	bset	_flag_blink_on_off
+ 913  002f bf00          	ldw	_cnt_state_greenLED,x
+ 916  0031 7217500a      	bres	20490,#3
+ 919  0035 7218500a      	bset	20490,#4
+ 923  0039 72100000      	bset	_flag_blink_greenLED
+ 926  003d cc00c9        	jra	L513
+ 927  0040               L703:
+ 928                     ; 315           BLINK_REDLED(2);
+ 930  0040 35020000      	mov	_blink_redLED_times,#2
+ 933  0044 72110000      	bres	_flag_blink_unlimited
+ 938  0048 5f            	clrw	x
+ 939  0049 72100000      	bset	_flag_blink_on_off
+ 940  004d bf00          	ldw	_cnt_state_redLED,x
+ 943  004f 7216500a      	bset	20490,#3
+ 946  0053 7219500a      	bres	20490,#4
+ 950  0057 72100000      	bset	_flag_blink_redLED
+ 952  005b 206c          	jra	L513
+ 953  005d               L503:
+ 954                     ; 320         LrnModeActive = FALSE;
+ 956  005d 72110000      	bres	L11_LrnModeActive
+ 957                     ; 321         BLINKSTOP_GREENLED;
+ 959  0061 72110000      	bres	_flag_blink_greenLED
+ 964  0065 205a          	jp	LC005
+ 965  0067               L103:
+ 966                     ; 330     LED_RED_ON;
+ 968  0067 7216500a      	bset	20490,#3
+ 971  006b 7219500a      	bres	20490,#4
+ 972                     ; 331     flash_erase_timing_test = 1;
+ 975  006f 35010014      	mov	L14_flash_erase_timing_test,#1
+ 976                     ; 332     FLASH_Unlock(FLASH_MemType_Program);
+ 978  0073 a6fd          	ld	a,#253
+ 979  0075 cd0000        	call	_FLASH_Unlock
+ 981                     ; 333     adr = (u8*)&Receivers;
+ 983  0078 ae0000        	ldw	x,#L5_Receivers
+ 984  007b 1f01          	ldw	(OFST-2,sp),x
+ 985                     ; 334     for(i = 0; i < sizeof(Receivers); i++)
+ 987  007d 0f03          	clr	(OFST+0,sp)
+ 988  007f               L713:
+ 989                     ; 336       FLASH_EraseByte((u16)(adr++));
+ 991  007f 1e01          	ldw	x,(OFST-2,sp)
+ 992  0081 5c            	incw	x
+ 993  0082 1f01          	ldw	(OFST-2,sp),x
+ 994  0084 5a            	decw	x
+ 995  0085 cd0000        	call	_FLASH_EraseByte
+ 997                     ; 334     for(i = 0; i < sizeof(Receivers); i++)
+ 999  0088 0c03          	inc	(OFST+0,sp)
+1002  008a 7b03          	ld	a,(OFST+0,sp)
+1003  008c a10b          	cp	a,#11
+1004  008e 25ef          	jrult	L713
+1005                     ; 338     FLASH_Lock(FLASH_MemType_Program);
+1007  0090 a6fd          	ld	a,#253
+1008  0092 cd0000        	call	_FLASH_Lock
+1010                     ; 339     flash_erase_timing_test = 2;
+1012  0095 35020014      	mov	L14_flash_erase_timing_test,#2
+1013                     ; 341     Errors_ResetError(ERROR_FLASH_ERASE);
+1015  0099 a601          	ld	a,#1
+1016  009b cd0000        	call	_Errors_ResetError
+1018                     ; 342     adr = (u8*)&Receivers;
+1020  009e ae0000        	ldw	x,#L5_Receivers
+1021  00a1 1f01          	ldw	(OFST-2,sp),x
+1022                     ; 343     for(i = 0; i < sizeof(Receivers); i++)
+1024  00a3 0f03          	clr	(OFST+0,sp)
+1025  00a5               L523:
+1026                     ; 345       if(*(adr++))
+1028  00a5 1e01          	ldw	x,(OFST-2,sp)
+1029  00a7 5c            	incw	x
+1030  00a8 1f01          	ldw	(OFST-2,sp),x
+1031  00aa 5a            	decw	x
+1032  00ab f6            	ld	a,(x)
+1033  00ac 2707          	jreq	L333
+1034                     ; 347         Errors_SetError(ERROR_FLASH_ERASE);
+1036  00ae a601          	ld	a,#1
+1037  00b0 cd0000        	call	_Errors_SetError
+1039                     ; 348         break;
+1041  00b3 2008          	jra	L133
+1042  00b5               L333:
+1043                     ; 343     for(i = 0; i < sizeof(Receivers); i++)
+1045  00b5 0c03          	inc	(OFST+0,sp)
+1048  00b7 7b03          	ld	a,(OFST+0,sp)
+1049  00b9 a10b          	cp	a,#11
+1050  00bb 25e8          	jrult	L523
+1051  00bd               L133:
+1052                     ; 351     flash_erase_timing_test = 3;
+1054  00bd 35030014      	mov	L14_flash_erase_timing_test,#3
+1055                     ; 352     LED_OFF;
+1059  00c1               LC005:
+1061  00c1 7217500a      	bres	20490,#3
+1063  00c5 7219500a      	bres	20490,#4
+1064  00c9               L513:
+1065                     ; 354   BTN1_press_timer = 0;
+1067  00c9 5f            	clrw	x
+1068  00ca bf00          	ldw	_BTN1_press_timer,x
+1069                     ; 355 }
+1072  00cc 5b03          	addw	sp,#3
+1073  00ce 81            	ret	
+1097                     ; 357 void TASK_1000ms()
+1097                     ; 358 {
+1098                     .text:	section	.text,new
+1099  0000               _TASK_1000ms:
+1103                     ; 359   task_1000ms_cnt++;
+1105  0000 3c06          	inc	L53_task_1000ms_cnt
+1106                     ; 360 }
+1109  0002 81            	ret	
+1465                     	xdef	_main
+1466                     	switch	.ubsct
+1467  0000               _runtime_it_RFrcv:
+1468  0000 000000000000  	ds.b	10
+1469                     	xdef	_runtime_it_RFrcv
+1470  000a               _runtime_it_1ms:
+1471  000a 000000000000  	ds.b	10
+1472                     	xdef	_runtime_it_1ms
+1473                     	xdef	_IsLearnedID
+1474                     	xdef	_LearnNewID
+1475                     	xdef	_BTN1_Released
+1476                     	xdef	_TASK_1000ms
+1477  0014               L14_flash_erase_timing_test:
+1478  0014 00            	ds.b	1
+1479  0015               L7_BtoDW:
+1480  0015 00000000      	ds.b	4
+1481                     	switch	.bss
+1482  0000               L5_Receivers:
+1483  0000 000000000000  	ds.b	11
+1484                     	xref	_Timeout_IsTimeout2
+1485                     	xref	_Timeout_IsTimeout1
+1486                     	xref	_Timeout_SetTimeout2
+1487                     	xref	_Timeout_SetTimeout1
+1488                     	xref.b	_RFbytesReady
+1489                     	xref.b	_RcvRFmsg
+1490                     	xbit	_flag_blink_unlimited
+1491                     	xbit	_flag_blink_greenLED
+1492                     	xbit	_flag_blink_redLED
+1493                     	xbit	_flag_blink_on_off
+1494                     	xref.b	_cnt_state_greenLED
+1495                     	xref.b	_cnt_state_redLED
+1496                     	xref.b	_blink_greenLED_times
+1497                     	xref.b	_blink_redLED_times
+1498                     	xbit	_FLAG_1000ms
+1499                     	xref.b	_BTN1_press_timer
+1500                     	xref.b	_BTN1_DEB_STATE
+1501                     	xref	_Errors_IsError
+1502                     	xref	_Errors_ResetError
+1503                     	xref	_Errors_SetError
+1504                     	xref	_Errors_Init
+1505                     	xref	_Config
+1506                     	xref	_RST_ClearFlag
+1507                     	xref	_RST_GetFlagStatus
+1508                     	xref	_IWDG_Enable
+1509                     	xref	_IWDG_ReloadCounter
+1510                     	xref	_IWDG_SetReload
+1511                     	xref	_IWDG_SetPrescaler
+1512                     	xref	_IWDG_WriteAccessCmd
+1513                     	xref	_FLASH_EraseByte
+1514                     	xref	_FLASH_ProgramByte
+1515                     	xref	_FLASH_Lock
+1516                     	xref	_FLASH_Unlock
+1536                     	xref	c_lcmp
+1537                     	xref	c_ltor
+1538                     	end

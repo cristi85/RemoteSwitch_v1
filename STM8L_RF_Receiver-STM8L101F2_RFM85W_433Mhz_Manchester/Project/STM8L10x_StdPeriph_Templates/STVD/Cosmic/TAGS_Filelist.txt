@@ -3,6 +3,8 @@
 ..\..\errors.c
 ..\..\errors.h
 ..\..\main.c
+..\..\rtms.c
+..\..\rtms.h
 ..\..\stm8l10x_it.c
 ..\..\stm8l10x_it.h
 ..\..\timeout.c
