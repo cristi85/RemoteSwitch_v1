@@ -48,7 +48,7 @@ AWU_Timebase_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10
 AWU_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	217;"	typedef	typeref:struct:AWU_struct
 AWU_struct	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	211;"	struct
 AffBit	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1397;"	macro
-B	..\..\main.c	69;"	member	union:__anon2	typeref:struct:__anon2::__anon3	file:
+B	..\..\main.c	68;"	member	union:__anon2	typeref:struct:__anon2::__anon3	file:
 BEEP	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1288;"	macro
 BEEP_BaseAddress	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1260;"	macro
 BEEP_CALIBRATION_DEFAULT	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_beep.h	62;"	macro
@@ -75,11 +75,11 @@ BRR1	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1155;"	membe
 BRR2	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1156;"	member	struct:USART_struct
 BTN1_DEB_STATE	..\..\stm8l10x_it.c	50;"	variable
 BTN1_DELAY_FLAG	..\..\stm8l10x_it.c	51;"	variable
-BTN1_DELETE_ID_THR	..\..\main.c	54;"	macro	file:
+BTN1_DELETE_ID_THR	..\..\main.c	53;"	macro	file:
 BTN1_PIN	..\..\board.h	32;"	macro
 BTN1_PORT	..\..\board.h	31;"	macro
-BTN1_Released	..\..\main.c	108;"	prototype	file:	signature:(void)
-BTN1_Released	..\..\main.c	303;"	function
+BTN1_Released	..\..\main.c	107;"	prototype	file:	signature:(void)
+BTN1_Released	..\..\main.c	299;"	function
 BTN1_STATE	..\..\board.h	33;"	macro
 BTN1_press_timer	..\..\stm8l10x_it.c	53;"	variable
 BTN_DELAY	..\..\stm8l10x_it.c	47;"	macro	file:
@@ -94,7 +94,7 @@ BitClr	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1425;"	mac
 BitSet	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1426;"	macro
 BitStatus	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	153;"	typedef	typeref:enum:__anon11
 BitVal	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1427;"	macro
-BtoDW	..\..\main.c	89;"	variable	file:
+BtoDW	..\..\main.c	88;"	variable	file:
 CCER1	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	912;"	member	struct:TIM_struct
 CCMR1	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	910;"	member	struct:TIM_struct
 CCMR2	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	911;"	member	struct:TIM_struct
@@ -251,7 +251,6 @@ COMP_TimersConnection_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\in
 COMP_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	376;"	typedef	typeref:struct:COMP_struct
 COMP_struct	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	370;"	struct
 CONF	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	436;"	member	struct:EXTI_struct
-CONSEC_ERROR_NRF24_REG_THR	..\..\main.c	53;"	macro	file:
 CONST	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	59;"	macro
 CONST	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	65;"	macro
 CONST	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	72;"	macro
@@ -302,7 +301,7 @@ DR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1154;"	member	
 DR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	551;"	member	struct:I2C_struct
 DR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	844;"	member	struct:SPI_struct
 DUKR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	494;"	member	struct:FLASH_struct
-DW	..\..\main.c	70;"	member	union:__anon2	file:
+DW	..\..\main.c	69;"	member	union:__anon2	file:
 EEPROM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	58;"	macro
 EEPROM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	64;"	macro
 EEPROM	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	71;"	macro
@@ -428,12 +427,12 @@ FAR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	61;"	macro
 FAR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	68;"	macro
 FLAG_1000ms	..\..\stm8l10x_it.c	41;"	variable
 FLAG_500ms	..\..\stm8l10x_it.c	38;"	variable
-FLAG_BTN1_lock	..\..\main.c	91;"	variable	file:
+FLAG_BTN1_lock	..\..\main.c	90;"	variable	file:
 FLAG_CC_Error	..\..\stm8l10x_it.c	98;"	variable	file:
 FLAG_UART_cmd_rcv	..\..\stm8l10x_it.c	124;"	variable
-FLAG_check_nrf_reg	..\..\main.c	93;"	variable	file:
+FLAG_check_nrf_reg	..\..\main.c	92;"	variable	file:
 FLAG_fall_edge	..\..\stm8l10x_it.c	97;"	variable	file:
-FLAG_reset_LEDblink_error	..\..\main.c	92;"	variable	file:
+FLAG_reset_LEDblink_error	..\..\main.c	91;"	variable	file:
 FLAG_rise_edge	..\..\stm8l10x_it.c	96;"	variable	file:
 FLASH	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1281;"	macro
 FLASH_BLOCK_NUMBER	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_flash.h	49;"	macro
@@ -740,7 +739,7 @@ I2C_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	560;"
 I2C_struct	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	543;"	struct
 IAPSR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	495;"	member	struct:FLASH_struct
 ICR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	842;"	member	struct:SPI_struct
-ID	..\..\main.c	58;"	member	struct:__anon1	file:
+ID	..\..\main.c	57;"	member	struct:__anon1	file:
 IDR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	189;"	member	struct:GPIO_struct
 IER	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1079;"	member	struct:TIM4_struct
 IER	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	906;"	member	struct:TIM_struct
@@ -1003,8 +1002,8 @@ IWDG_WriteAccess_Disable	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm
 IWDG_WriteAccess_Enable	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_iwdg.h	71;"	enumerator	enum:__anon50
 IWDG_WriteAccess_TypeDef	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_iwdg.h	73;"	typedef	typeref:enum:__anon50
 IWDG_struct	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	712;"	struct
-IsLearnedID	..\..\main.c	110;"	prototype	file:	signature:(void)
-IsLearnedID	..\..\main.c	255;"	function
+IsLearnedID	..\..\main.c	109;"	prototype	file:	signature:(void)
+IsLearnedID	..\..\main.c	254;"	function
 KR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	714;"	member	struct:IWDG_struct
 LEDBLINK_OFFTIME	..\..\stm8l10x_it.c	69;"	macro	file:
 LEDBLINK_ONTIME	..\..\stm8l10x_it.c	68;"	macro	file:
@@ -1025,10 +1024,10 @@ LSI_FREQUENCY_MAX	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_b
 LSI_FREQUENCY_MIN	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_awu.h	77;"	macro
 LSI_FREQUENCY_MIN	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_beep.h	63;"	macro
 LSI_VALUE	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_clk.h	87;"	macro
-LearnNewID	..\..\main.c	109;"	prototype	file:	signature:(void)
-LearnNewID	..\..\main.c	270;"	function
-LightState	..\..\main.c	87;"	variable	file:
-LrnModeActive	..\..\main.c	90;"	variable	file:
+LearnNewID	..\..\main.c	108;"	prototype	file:	signature:(void)
+LearnNewID	..\..\main.c	269;"	function
+LightState	..\..\main.c	86;"	variable	file:
+LrnModeActive	..\..\main.c	89;"	variable	file:
 MAX_NUM_RECEIVERS	..\..\main.c	52;"	macro	file:
 MEMCPY	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	66;"	macro
 MskBit	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1400;"	macro
@@ -1046,7 +1045,7 @@ NMOS_R_PIN	..\..\board.h	59;"	macro
 NMOS_R_PORT	..\..\board.h	55;"	macro
 NonHandledInterrupt	..\..\stm8l10x_it.h	74;"	prototype	signature:(void)
 NonHandledInterrupt	..\..\stm8l10x_it.h	78;"	prototype	signature:(void)
-NumLrndRcv	..\..\main.c	59;"	member	struct:__anon1	file:
+NumLrndRcv	..\..\main.c	58;"	member	struct:__anon1	file:
 OARH	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	549;"	member	struct:I2C_struct
 OARL	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	548;"	member	struct:I2C_struct
 ODR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	188;"	member	struct:GPIO_struct
@@ -1083,15 +1082,15 @@ RESERVED1	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	326;"	m
 RESERVED2	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	327;"	member	struct:CLK_struct
 RESERVED3	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	329;"	member	struct:CLK_struct
 RESET	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	153;"	enumerator	enum:__anon11
-RFCMD_LIGHT_OFF	..\..\main.c	83;"	enumerator	enum:__anon4	file:
-RFCMD_LIGHT_ON	..\..\main.c	82;"	enumerator	enum:__anon4	file:
+RFCMD_LIGHT_OFF	..\..\main.c	82;"	enumerator	enum:__anon4	file:
+RFCMD_LIGHT_ON	..\..\main.c	81;"	enumerator	enum:__anon4	file:
 RFM_DATA_PIN	..\..\board.h	38;"	macro
 RFM_DATA_PORT	..\..\board.h	37;"	macro
 RFM_DATA_STATE	..\..\board.h	39;"	macro
 RFNodeId	..\..\stm8l10x_it.h	60;"	member	struct:__anon8::__anon9
 RFSEND_DATALEN	..\..\stm8l10x_it.h	54;"	macro
 RFSYNCVAL	..\..\stm8l10x_it.c	85;"	macro	file:
-RF_Cmd_TypeDef	..\..\main.c	84;"	typedef	typeref:enum:__anon4	file:
+RF_Cmd_TypeDef	..\..\main.c	83;"	typedef	typeref:enum:__anon4	file:
 RF_RCVSTATE_RECBITS	..\..\stm8l10x_it.c	116;"	enumerator	enum:__anon6	file:
 RF_RCVSTATE_WAITSTART	..\..\stm8l10x_it.c	115;"	enumerator	enum:__anon6	file:
 RF_RCVTIMEOUT	..\..\stm8l10x_it.c	84;"	macro	file:
@@ -1145,7 +1144,7 @@ RTMS_INIT	..\..\rtms.h	21;"	macro
 RTMS_MEASURE_START	..\..\rtms.h	15;"	macro
 RTMS_MEASURE_STOP	..\..\rtms.h	24;"	macro
 RcvRFmsg	..\..\stm8l10x_it.c	107;"	variable
-Receivers	..\..\main.c	88;"	variable	file:
+Receivers	..\..\main.c	87;"	variable	file:
 Runtime_t	..\..\rtms.h	13;"	typedef	typeref:struct:__anon5
 S16_MAX	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	164;"	macro
 S16_MIN	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	165;"	macro
@@ -1271,20 +1270,20 @@ SR2	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	908;"	member	
 SR3	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	554;"	member	struct:I2C_struct
 STATUS_LOWBATT	..\..\main.c	49;"	macro	file:
 STRINGVECTOR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1358;"	macro
-ST_INIT	..\..\main.c	74;"	enumerator	enum:States	file:
-ST_NRF_RCVD_DATA	..\..\main.c	76;"	enumerator	enum:States	file:
-ST_SWITCH_LIGHT	..\..\main.c	77;"	enumerator	enum:States	file:
-ST_WAIT_INPUT_OR_FLAG	..\..\main.c	75;"	enumerator	enum:States	file:
-ST_WAIT_TIMEOUT1_CAP_CHARGE	..\..\main.c	78;"	enumerator	enum:States	file:
-ST_WAIT_TIMEOUT1_HBRIDGE_ON	..\..\main.c	79;"	enumerator	enum:States	file:
+ST_INIT	..\..\main.c	73;"	enumerator	enum:States	file:
+ST_NRF_RCVD_DATA	..\..\main.c	75;"	enumerator	enum:States	file:
+ST_SWITCH_LIGHT	..\..\main.c	76;"	enumerator	enum:States	file:
+ST_WAIT_INPUT_OR_FLAG	..\..\main.c	74;"	enumerator	enum:States	file:
+ST_WAIT_TIMEOUT1_CAP_CHARGE	..\..\main.c	77;"	enumerator	enum:States	file:
+ST_WAIT_TIMEOUT1_HBRIDGE_ON	..\..\main.c	78;"	enumerator	enum:States	file:
 SUCCESS	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	158;"	enumerator	enum:__anon13
 SetBit	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1393;"	macro
-States	..\..\main.c	72;"	enum	file:
-StatesType	..\..\main.c	80;"	typedef	typeref:enum:States	file:
-TASK_1000ms	..\..\main.c	105;"	prototype	file:	signature:(void)
-TASK_1000ms	..\..\main.c	361;"	function
-TASK_250ms	..\..\main.c	107;"	prototype	file:	signature:(void)
-TASK_500ms	..\..\main.c	106;"	prototype	file:	signature:(void)
+States	..\..\main.c	71;"	enum	file:
+StatesType	..\..\main.c	79;"	typedef	typeref:enum:States	file:
+TASK_1000ms	..\..\main.c	104;"	prototype	file:	signature:(void)
+TASK_1000ms	..\..\main.c	357;"	function
+TASK_250ms	..\..\main.c	106;"	prototype	file:	signature:(void)
+TASK_500ms	..\..\main.c	105;"	prototype	file:	signature:(void)
 TBR	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	215;"	member	struct:AWU_struct
 TI1_Config	..\..\..\..\libraries\stm8l10x_stdperiph_driver\src\stm8l10x_tim2.c	1675;"	function	file:	signature:(TIM2_ICPolarity_TypeDef TIM2_ICPolarity, \ TIM2_ICSelection_TypeDef TIM2_ICSelection, \ uint8_t TIM2_ICFilter)
 TI1_Config	..\..\..\..\libraries\stm8l10x_stdperiph_driver\src\stm8l10x_tim2.c	44;"	prototype	file:	signature:(TIM2_ICPolarity_TypeDef TIM2_ICPolarity, TIM2_ICSelection_TypeDef TIM2_ICSelection, uint8_t TIM2_ICFilter)
@@ -2224,14 +2223,14 @@ __STM8L10x_IRTIM_H	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x_
 __STM8L10x_IT_H	..\..\stm8l10x_it.h	30;"	macro
 _stext	..\..\stm8l10x_it.h	73;"	prototype	signature:(void)
 _vectab	stm8_interrupt_vector.c	15;"	variable
-assert_failed	..\..\main.c	375;"	function	signature:(uint8_t* file, uint32_t line)
+assert_failed	..\..\main.c	371;"	function	signature:(uint8_t* file, uint32_t line)
 assert_failed	..\..\stm8l10x_conf.h	74;"	prototype	signature:(uint8_t* file, uint32_t line)
 assert_param	..\..\stm8l10x_conf.h	72;"	macro
 assert_param	..\..\stm8l10x_conf.h	76;"	macro
-b0	..\..\main.c	65;"	member	struct:__anon2::__anon3	file:
-b1	..\..\main.c	66;"	member	struct:__anon2::__anon3	file:
-b2	..\..\main.c	67;"	member	struct:__anon2::__anon3	file:
-b3	..\..\main.c	68;"	member	struct:__anon2::__anon3	file:
+b0	..\..\main.c	64;"	member	struct:__anon2::__anon3	file:
+b1	..\..\main.c	65;"	member	struct:__anon2::__anon3	file:
+b2	..\..\main.c	66;"	member	struct:__anon2::__anon3	file:
+b3	..\..\main.c	67;"	member	struct:__anon2::__anon3	file:
 blink_greenLED_times	..\..\stm8l10x_it.c	75;"	variable
 blink_redLED_times	..\..\stm8l10x_it.c	74;"	variable
 bool	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	151;"	typedef	typeref:enum:__anon10
@@ -2247,8 +2246,8 @@ cnt_flag_500ms	..\..\stm8l10x_it.c	39;"	variable
 cnt_state_greenLED	..\..\stm8l10x_it.c	71;"	variable
 cnt_state_redLED	..\..\stm8l10x_it.c	70;"	variable
 debug	..\..\stm8l10x_it.c	65;"	variable
-debug_reg_idx	..\..\main.c	99;"	variable	file:
-debug_registers	..\..\main.c	98;"	variable	file:
+debug_reg_idx	..\..\main.c	98;"	variable	file:
+debug_registers	..\..\main.c	97;"	variable	file:
 delay_4us	..\..\delay.h	7;"	prototype	signature:(u8)
 delay_ms	..\..\delay.h	6;"	prototype	signature:(u16 n_ms)
 disableInterrupts	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1314;"	macro
@@ -2259,32 +2258,32 @@ enableInterrupts	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	
 enableInterrupts	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1334;"	macro
 error_cnt	..\..\errors.c	4;"	variable	file:
 error_cnt_thr	..\..\errors.c	5;"	variable	file:
-error_nrf24_reg_cnt	..\..\main.c	94;"	variable	file:
+error_nrf24_reg_cnt	..\..\main.c	93;"	variable	file:
 error_state	..\..\errors.c	6;"	variable	file:
 flag_blink_greenLED	..\..\stm8l10x_it.c	78;"	variable
 flag_blink_on_off	..\..\stm8l10x_it.c	76;"	variable
 flag_blink_redLED	..\..\stm8l10x_it.c	77;"	variable
 flag_blink_unlimited	..\..\stm8l10x_it.c	79;"	variable
-flash_erase_timing_test	..\..\main.c	102;"	variable	file:
+flash_erase_timing_test	..\..\main.c	101;"	variable	file:
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1321;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1331;"	macro
 halt	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1342;"	macro
 idx	..\..\stm8l10x_it.c	106;"	variable
-init_delay	..\..\main.c	101;"	variable	file:
+init_delay	..\..\main.c	100;"	variable	file:
 int16_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	132;"	typedef
 int32_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	133;"	typedef
 int8_t	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	131;"	typedef
 interrupt_handler	stm8_interrupt_vector.c	12;"	member	struct:interrupt_vector	file:
 interrupt_handler_t	stm8_interrupt_vector.c	8;"	typedef	file:
 interrupt_instruction	stm8_interrupt_vector.c	11;"	member	struct:interrupt_vector	file:
-interrupt_status	..\..\main.c	97;"	variable	file:
+interrupt_status	..\..\main.c	96;"	variable	file:
 interrupt_status	..\..\stm8l10x_it.c	64;"	variable	file:
 interrupt_vector	stm8_interrupt_vector.c	10;"	struct	file:
-main	..\..\main.c	120;"	function	signature:(void)
+main	..\..\main.c	119;"	function	signature:(void)
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1317;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1327;"	macro
 nop	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1338;"	macro
-program_status	..\..\main.c	96;"	variable	file:
+program_status	..\..\main.c	95;"	variable	file:
 rcv_buff	..\..\stm8l10x_it.c	105;"	variable
 rf_bittime	..\..\stm8l10x_it.c	99;"	variable	file:
 rf_edges_jitter	..\..\stm8l10x_it.c	101;"	variable	file:
@@ -2296,9 +2295,9 @@ rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1315;"	macro
 rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1325;"	macro
 rim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1336;"	macro
 runtime	..\..\rtms.h	12;"	member	struct:__anon5
-runtime_it_1ms	..\..\main.c	113;"	variable
+runtime_it_1ms	..\..\main.c	112;"	variable
 runtime_it_1ms	..\..\stm8l10x_it.c	127;"	variable
-runtime_it_RFrcv	..\..\main.c	114;"	variable
+runtime_it_RFrcv	..\..\main.c	113;"	variable
 runtime_it_RFrcv	..\..\stm8l10x_it.c	128;"	variable
 s16	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	143;"	typedef
 s32	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	142;"	typedef
@@ -2306,10 +2305,10 @@ s8	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	144;"	typedef
 sim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1316;"	macro
 sim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1326;"	macro
 sim	..\..\..\..\libraries\stm8l10x_stdperiph_driver\inc\stm8l10x.h	1337;"	macro
-state	..\..\main.c	95;"	variable	file:
-tBtoDW	..\..\main.c	71;"	typedef	typeref:union:__anon2	file:
-tReceivers	..\..\main.c	60;"	typedef	typeref:struct:__anon1	file:
-task_1000ms_cnt	..\..\main.c	100;"	variable	file:
+state	..\..\main.c	94;"	variable	file:
+tBtoDW	..\..\main.c	70;"	typedef	typeref:union:__anon2	file:
+tReceivers	..\..\main.c	59;"	typedef	typeref:struct:__anon1	file:
+task_1000ms_cnt	..\..\main.c	99;"	variable	file:
 tcur	..\..\rtms.h	10;"	member	struct:__anon5
 temph	..\..\stm8l10x_it.c	125;"	variable	file:
 templ	..\..\stm8l10x_it.c	125;"	variable	file:

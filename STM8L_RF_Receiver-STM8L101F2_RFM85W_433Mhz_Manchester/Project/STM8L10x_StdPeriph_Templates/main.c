@@ -84,7 +84,7 @@ typedef enum {
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static u8 LightState = LIGHTSTATE_OFF;
-static const volatile tReceivers Receivers;
+static const tReceivers Receivers;
 static tBtoDW BtoDW;
 static _Bool LrnModeActive = FALSE;
 static _Bool FLAG_BTN1_lock = FALSE;
@@ -168,7 +168,22 @@ void main(void)
         if(RFbytesReady)
         {
           RFbytesReady = FALSE;
-          state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
+          if(LrnModeActive)
+          {
+            LearnNewID();
+            state = ST_WAIT_INPUT_OR_FLAG;
+          }
+          else
+          {
+            if(IsLearnedID())
+            {
+              state = ST_WAIT_TIMEOUT1_CAP_CHARGE;
+            }
+            else
+            {
+              state = ST_WAIT_INPUT_OR_FLAG;
+            }
+          }
         }
         if(FLAG_1000ms)
         {
@@ -182,7 +197,7 @@ void main(void)
         if(BTN1_DEB_STATE == BTN_DEPRESSED && FLAG_BTN1_lock)
         {
           FLAG_BTN1_lock = FALSE;
-          //BTN1_Released();
+          BTN1_Released();
         }
         /* ============== END PRESS BTN1 with key repetition lock ================= */
         
@@ -271,9 +286,9 @@ void LearnNewID()
   // Check if ID already exists
   u8 i;
   _Bool flag_IDfound = FALSE;
-  for(i = 0; i < Receivers.NumLrndRcv; i++)
+  for(i = 0; i < (*(u8*)(&(Receivers.NumLrndRcv))); i++)
   {
-    if( RcvRFmsg.RFmsgmember.RFNodeId == Receivers.ID[i])
+    if( RcvRFmsg.RFmsgmember.RFNodeId == (*(u8*)(&(Receivers.ID[i]))) )
     {
       flag_IDfound = TRUE;
       break;
@@ -287,7 +302,7 @@ void LearnNewID()
     FLASH_ProgramByte( (u16)(u8*)(&Receivers.NumLrndRcv), Receivers.NumLrndRcv + 1);
     FLASH_Lock(FLASH_MemType_Program);
     /* Check what was written */
-    if( BtoDW.DW != (*(u32*)(&(Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv))) - 1]))) )
+    if( RcvRFmsg.RFmsgmember.RFNodeId != (*(u8*)(&(Receivers.ID[(*(u8*)(&(Receivers.NumLrndRcv))) - 1]))) )
     {
       Errors_SetError(ERROR_FLASH_WRITE);
     }
@@ -301,25 +316,22 @@ void BTN1_Released()
   if(BTN1_press_timer < BTN1_DELETE_ID_THR)
   {
     /* Button press was shorter than 3 seconds */
-    if(!Errors_IsError())
+    if(!LrnModeActive)
     {
-      if(!LrnModeActive)
+      if(Receivers.NumLrndRcv < MAX_NUM_RECEIVERS)
       {
-        if(Receivers.NumLrndRcv < MAX_NUM_RECEIVERS)
-        {
-          LrnModeActive = TRUE;
-          BLINK_GREENLED(255);
-        }
-        else
-        {
-          BLINK_REDLED(2);
-        }
+        LrnModeActive = TRUE;
+        BLINK_GREENLED(255);
       }
       else
       {
-        LrnModeActive = FALSE;
-        BLINKSTOP_GREENLED;
+        BLINK_REDLED(2);
       }
+    }
+    else
+    {
+      LrnModeActive = FALSE;
+      BLINKSTOP_GREENLED;
     }
   }
   else
