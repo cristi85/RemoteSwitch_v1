@@ -1,5 +1,5 @@
 
-Map of Debug\stm8l05xx3.sm8 from link file Debug\stm8l05xx3.lkf - Thu Oct 08 17:36:59 2015
+Map of Debug\stm8l05xx3.sm8 from link file Debug\stm8l05xx3.lkf - Wed Nov 11 20:22:47 2015
 
 
                                --------
@@ -8,7 +8,6 @@ Map of Debug\stm8l05xx3.sm8 from link file Debug\stm8l05xx3.lkf - Thu Oct 08 17:
 
 start 00008080 end 00008080 length     0 segment .const
 start 00008089 end 000085ad length  1316 segment .text
-start 00001000 end 00001000 length     0 segment .eeprom
 start 00000000 end 00000001 length     1 segment .bsct, initialized
 start 00008088 end 00008089 length     1 segment .bsct, from
 start 00000001 end 00000011 length    16 segment .ubsct
@@ -922,7 +921,7 @@ _TIM4_UpdateRequestConfig                     ********   *** removed from Debug\
 _WFE_DeInit                                   ********   *** removed from Debug\stm8l15x_wfe.o ***
 _WFE_GetWakeUpSourceEventStatus               ********   *** removed from Debug\stm8l15x_wfe.o ***
 _WFE_WakeUpSourceEventCmd                     ********   *** removed from Debug\stm8l15x_wfe.o ***
-__endmem                                      000001ff   defined in command file
+__endmem                                      000003fe   defined in command file
                                                          *** not used ***
 __endzp                                       00000011   defined in command file section .ubsct
                                                          used in C:\Program Files (x86)\COSMIC\CXSTM8_32K\lib\crtsi0.sm8
@@ -930,7 +929,7 @@ __idesc__                                     00008080   defined in linker secti
                                                          used in C:\Program Files (x86)\COSMIC\CXSTM8_32K\lib\crtsi0.sm8
 __memory                                      00000100   defined in command file section .bss
                                                          used in C:\Program Files (x86)\COSMIC\CXSTM8_32K\lib\crtsi0.sm8
-__stack                                       000003ff   defined in command file
+__stack                                       000005ff   defined in command file
                                                          used in C:\Program Files (x86)\COSMIC\CXSTM8_32K\lib\crtsi0.sm8
 __startmem                                    00000100   defined in command file section .bss
                                                          *** not used ***
